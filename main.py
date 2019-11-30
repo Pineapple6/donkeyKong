@@ -22,42 +22,20 @@ class Entity:
 	Define una Entidad que tiene una posición en x, una posición en y,
 	una imagen y a la que le afecta una aceleración en el eje y que hace que caiga: La gravedad.
 	'''
-	def __init__(self, x, y, gravity=9.8):
+	def __init__(self, x, y):
 		self.x = x
 		self.y = y
-		self.vel_x = 0
-		self.vel_y = 0
-		self.gravity = gravity
-		self.init_sprites() 
-		self.state = None
+		self.init_sprites()
 	
-	def setVelx(self, val):
-		self.vel_x = val
-	
-	def giveVely(self, val):
-		self.vel_y += val
+	def changeX(self, val):
+		self.x += val
 
 	def setSprite(self, sprite):
+		self.sprite_name = sprite
 		self.sprite = self.sprites[sprite]
-		self.state = sprite
-		
-	def update(self):
-		'''
-		Actualiza la posición de la entidad un frame con respecto a sus propiedades
-		físicas
-		'''
-
-		if self.y + self.vel_y >= HEIGHT-1: # Si cae por debajo de la pantalla
-			self.y = HEIGHT-1 # Se queda justo al fondo
-			
-			# Se para
-			self.vel_y = 0 
-		else:
-			self.y += self.vel_y # Si no, se mueve normalmente.
-
-		self.vel_y += self.gravity/FPS # Se acelera gravity por segundo, luego gravity/fps por cada frame.
-		self.x += self.vel_x # Se mueve en el eje x
-		
+	
+	def getSprite(self):
+		return self.sprite_name
 
 class Mario(Entity):
 	'''
@@ -65,10 +43,12 @@ class Mario(Entity):
 	'''
 	def init_sprites(self):
 		self.sprites = {
-			'left':Sprite( (2, 1), (13, 16), 0, 3 ), 
-			'right':Sprite( (242, 20), (253, 35), 0, 3 ),
-			'jump_left':Sprite( (25, 1), (39, 16), 0, 3 ), 
-			'jump_right':Sprite( (216, 20), (231, 35), 0, 3 )
+			'right1':Sprite((242, 20), (253, 35), 0, 3),
+			'right2':Sprite((216, 20), (230, 35), 0, 3),
+			'right3':Sprite((192, 21), (206, 35), 0, 3),
+			'left1':Sprite((2, 1), (13, 16), 0, 3),
+			'left2':Sprite((25, 1), (39, 16), 0, 3),
+			'left3':Sprite((49, 2), (63, 16), 0, 3)
 		}
 
 class DonkeyKong(Entity):
@@ -110,8 +90,8 @@ class Map():
 	def __init__(self):
 		self.escaleras = [] # DE TIPO Escalera
 		self.plataformas = [] # DE TIPO Plataforma
-		self.mario = Mario( WIDTH/2, HEIGHT/2)
-		self.mario.setSprite('right')
+		self.mario = Mario( WIDTH/2, HEIGHT-1)
+		self.mario.setSprite('right1') # sprite inicial
 
 		#TODO:
 		# self.donkey
@@ -130,36 +110,26 @@ class Game:
 		pyxel.run(self.update, self.draw) # Ejecuta pyxel con las funciones update y draw definidas en esta misma clase
 		
 	def update(self):
-		floor = self.map.mario.y == HEIGHT-1 # para evitar tener que hacer dos veces la misma comprobación
+		# La variable turn es el turno, lo que establece cual de los
+		# 3 sprites usar en mario cuando esta corriendo.
+		turn = int(pyxel.frame_count%30 / 10) + 1
 
-		if floor:
-			self.map.mario.setVelx(0) # Si toca el suelo, se para (en el eje x)
-
-		if (pyxel.btn(pyxel.KEY_UP)): # si se pulsa la flecha de arriba
-			if floor: # y esta en el suelo 
-				self.map.mario.giveVely(-4) # Se le da a Mario velocidad positiva pa que salte
-						
 		if (pyxel.btn(pyxel.KEY_RIGHT)): # si se pulsa la flecha derecha
-			self.map.mario.setVelx(2) # se le da a mario velocidad en x para la derecha
-			self.map.mario.setSprite('right') # Se actualiza el sprite
+			self.map.mario.changeX(1) # se le da a mario velocidad en x para la derecha
+			self.map.mario.setSprite('right' + str(turn)) # Actualiza el sprite
 
 		elif (pyxel.btn(pyxel.KEY_LEFT)): # si en cambio se pulsa la izquierda
-			self.map.mario.setVelx(-2) # se le da velocidad para la izquierda
-			self.map.mario.setSprite('left') # Se actualiza el sprite
-		
-		if not floor and not 'jump_' in self.map.mario.state: # si está en el aire y no se ha actualizado ya el sprite
-			self.map.mario.setSprite('jump_' + self.map.mario.state) # Se actualiza el sprite
-		
-		if floor and 'jump_' in self.map.mario.state: # justo al contrario, si llega al suelo y no se ha actualizado
-			self.map.mario.setSprite(self.map.mario.state[5::]) # Se actualiza el sprite
+			self.map.mario.changeX(-1) # se le da velocidad para la izquierda
+			self.map.mario.setSprite('left' + str(turn)) # Actualiza el sprite
 
-		self.map.mario.update() # Se actualizan las coordenadas
-		
+		else: # Si no se esta moviendo, pasa al sprite 1, el de que está de pie.
+			# Si no hiciese esto, se quedaria quieto en una posición de estar corriendo, lo que queda mal.
+			self.map.mario.setSprite(self.map.mario.getSprite()[:-1] + '1')
 	
 	def draw(self):
 		pyxel.cls(0) # Limpia la pantalla, todo a negro
-
-		pyxel.blt(
+		
+		pyxel.blt( # Dibuja a Mario
 			self.map.mario.x-5, # -5 centra la posición teórica de mario.
 			self.map.mario.y-14, # -14 pone la posición en sus pies.
 			self.map.mario.sprite.bank,
@@ -169,6 +139,5 @@ class Game:
 			self.map.mario.sprite.size[1],
 			self.map.mario.sprite.transparent
 		)
-
 		
 Game() # Ejecuta el juego
