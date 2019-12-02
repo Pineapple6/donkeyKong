@@ -26,14 +26,14 @@ Entre los atributos más destacables encontramos:
 
 > Solo para aclarar: No hace falta que el objeto tenga que caer para poder heredar las características de Entity: Por ejemplo, las escaleras y plataformas también son entidades en el juego, solo que con gravedad 0 que impide que caiga o cambie su posición. Ocurre igual con otros objetos estáticos en pantalla.
 
-La clase entidad viene con varios métodos getter y setter que permiten controlar estas propiedades físicas que hemos declarado. Pero hay también un métido llamado **init_sprites** que si bien no es declarado en la propia clase Entity, es usado en su método \_\_init\_\_ y es declarado posteriormente en la creación de cada clase que hereda de ésta.
+La clase entidad viene con varios métodos getter y setter que permiten controlar estas propiedades físicas que hemos declarado. Pero hay también un método llamado **init_sprites** que si bien no es declarado en la propia clase Entity, es usado en su método \_\_init\_\_ y es declarado posteriormente en la creación de cada clase que hereda de ésta.
 
 Esto ha sido así dado que consideramos que al tener cada tipo de entidad su propio conjunto de sprites y al no cambiar nunca, es mejor que cada conjunto de sprites sea declarado dentro de la clase del personaje u objeto al que representan. (Añadirlos como atributos del método \_\_init\_\_ de Entity haría el código bastante engorroso)
 
 ## Clase Sprite
 En pyxel existe un archivo que contiene en 3 bancos de imágenes distintos todos los sprites que se van a usar en el juego. Este archivo es inicializado al iniciar el juego (clase Game).
 
-Dado todo esto, un sprite individual en realidad es un conjunto de aspectos que especifican qué pequeña parte de los bancos de imagenes se va a recortar para escoger cierto sprite.
+Dado todo esto, un sprite individual en realidad es un conjunto de aspectos que especifican qué pequeña parte de los bancos de imágenes se va a recortar para escoger cierto sprite.
 
 Así que eso es exactamente lo que representa la clase Sprite. Se compone de:
 
@@ -66,7 +66,7 @@ Este atributo se ejecuta cada frame, dado que es llamado dentro del atributo upd
 Pulsando las teclas izquierda y derecha del teclado, Mario se mueve hacia los lados. Esto se hace de manera muy simple haciendo que detecte las pulsaciones de pyxel.KEY_RIGHT y pyxel.KEY_LEFT, y aumentando o disminuyendo la posición de x en base al input recibido.
 
 ### Caída:
-Cuando la tecla espacio (pyxel.KEY_SPACE) es pulsada, a Mario se le da una velocidad en y negativa (hacia arriba en la pantalla) Para que salte. Gracias a la gravedad de ka entidad, poco a poco esta velocidad disminuye y cambia de sentido hacia abajo, haciendo que por sí solo Mario vuelva a caer al suelo completanso así el salto.
+Cuando la tecla espacio (pyxel.KEY_SPACE) es pulsada, a Mario se le da una velocidad en y negativa (hacia arriba en la pantalla), para que salte. Gracias a la gravedad de la entidad, poco a poco esta velocidad disminuye y cambia de sentido hacia abajo, haciendo que por sí solo Mario vuelva a caer al suelo completanso así el salto.
 
 > El algoritmo de caída incluye también la detección del fondo inferior de la pantalla, que hace que Mario se detenga cuando llega al suelo.
 
@@ -87,7 +87,7 @@ Mientras Mario se va moviendo, su sprite es cambiante. Para saber qué sprite se
 # Configuración general del proyecto
 Para agilizar el trabajo en conjunto, hemos decidido crear un repositorio en Github con el que podamos manejar las diferentes versiones del desarrollo del proyecto. (Repositorio obviamente **privado** y con acceso explícito únicamente a los autores del trabajo, para evitar copias)
 
-* El código del juego etá contenido en el archivo `main.py`, que se puede ejecutar usando Python3.
+* El código del juego está contenido en el archivo `main.py`, que se puede ejecutar usando Python3.
 
 > El script requiere de la instalación de la librería pyxel. Para agilizar el proceso, los recursos requeridos están en el archivo **requirements.txt**, así que para tener todo listo simplemente ejecuta el comando `python -m pip install -r requirements.txt`
 
@@ -95,4 +95,4 @@ Para agilizar el trabajo en conjunto, hemos decidido crear un repositorio en Git
 
 * El archivo `.gitignore` especifica al software de gestión de versiones qué archivos debe ignorar. (Archivos como configuraciones del editor de código, no relevantes para el proyecto)
 
-* La carpeta `assets` contiene todos los recursos que necesita el archivo `main.py` para ejecutarse correctamente. Asegúrese de que a la hora de ejecutar el script éste tiene acceso a sus recursos.
+* La carpeta `assets` contiene todos los recursos que necesita el archivo `main.py` para ejecutarse correctamente. Asegúrese de que a la hora de ejecutar el script, éste tiene acceso a sus recursos.
