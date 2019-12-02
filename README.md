@@ -55,6 +55,9 @@ No hay necesidad de aclarar ningun aspecto de éstos (salvo de Mario, más adela
 ## Clases de objetos
 Al igual que los personajes, son entidades del juego solo que al ser estáticas carecen de movimiento. (velocidad y = 0, gravedad = 0)
 
+## Clase Map
+Representa al tablero del juego como conjunto, conteniendo todas las entidades tanto estáticas como dinámicas del juego
+
 # Funcionalidad básica del juego
 ## Movimiento de Mario
 Esta parte del código puede llegar a ser un poco dificil de digerir, luego aquí explicaremos los algoritmos utilizados para hacer que Mario sea controlado por el jugador.
