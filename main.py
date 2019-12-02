@@ -1,10 +1,19 @@
 import pyxel
 
 # CONFIG
-HEIGHT = 100
-WIDTH = 120
+HEIGHT = 200
+WIDTH = 180
 FPS = 60
 #
+
+def abs(num):
+	'''
+	Valor absoluto
+	'''
+	if num >= 0:
+		return num
+	else:
+		return -num
 
 class Sprite:
 	'''
@@ -34,6 +43,9 @@ class Entity:
 		# init_sprites() se define en las clases que hereden a Entity, y especifica
 		# los sprites que va a usar el objeto en cuestión.
 	
+	def getX(self):
+		return self.x
+
 	def changeX(self, val):
 		self.x += val
 
@@ -155,15 +167,25 @@ class Platarforma(Entity):
 	Las plataformas del mapa
 	'''
 	def init_sprites(self):
-		self.sprite = Sprite((236, 103), (251, 110), 0, 3)
+		self.sprite = Sprite((236, 103), (251, 111), 0, 3)
 
 class Map():
 	def __init__(self):
 		self.escaleras = [] # DE TIPO Escalera
 		self.plataformas = [
-			Platarforma(40, 40, 0)
+			Platarforma(0, 192, 0),
+			Platarforma(15, 192, 0),
+			Platarforma(30, 192, 0),
+			Platarforma(45, 191, 0),
+			Platarforma(60, 190, 0),
+			Platarforma(75, 189, 0),
+			Platarforma(90, 188, 0),
+			Platarforma(105, 187, 0),
+			Platarforma(120, 186, 0),
+			Platarforma(135, 185, 0),
+			Platarforma(150, 184, 0)
 		] # DE TIPO Plataforma
-		self.mario = Mario( WIDTH/2, HEIGHT-1, 15)
+		self.mario = Mario( WIDTH/2, HEIGHT-1, 9.8)
 		self.mario.setSprite('right1') # sprite inicial
 
 		#TODO:
@@ -184,10 +206,33 @@ class Game:
 		
 	def update(self):
 		self.map.mario.update()
-	
+		
+		for i in self.map.plataformas:# por cada plataforma
+			if (
+				(self.map.mario.getY() + self.map.mario.getVelY() >= i.y-1) and 
+				(self.map.mario.getVelY() > 0) and
+				(abs((self.map.mario.getX()-5) - (i.x-7)) <= 8) and
+				(abs(i.y - self.map.mario.getY()) <= 2)
+			): # si toca la plataforma
+				self.map.mario.setY(i.y-1) # se queda en la plataforma
+				self.map.mario.setVelY(0) # se para
+				self.map.mario.jumping = False # ya no está saltando
+
 	def draw(self):
 		pyxel.cls(0) # Limpia la pantalla, todo a negro
 		
+		for i in self.map.plataformas: # Por cada item en map.plataformas
+			pyxel.blt( # Dibuja el item
+			i.x-7,
+			i.y,
+			i.sprite.bank,
+			i.sprite.region_from[0], 
+			i.sprite.region_from[1],
+			i.sprite.size[0], 
+			i.sprite.size[1],
+			i.sprite.transparent
+			)
+
 		pyxel.blt( # Dibuja a Mario
 			self.map.mario.x-5, # -5 centra la posición teórica de mario.
 			self.map.mario.y-14, # -14 pone la posición en sus pies.
@@ -197,18 +242,6 @@ class Game:
 			self.map.mario.sprite.size[0], 
 			self.map.mario.sprite.size[1],
 			self.map.mario.sprite.transparent
-		)
-
-		for i in self.map.plataformas:
-			pyxel.blt( # Dibuja a Mario
-			i.x-5, # -5 centra la posición teórica de mario.
-			i.y-14, # -14 pone la posición en sus pies.
-			i.sprite.bank,
-			i.sprite.region_from[0], 
-			i.sprite.region_from[1],
-			i.sprite.size[0], 
-			i.sprite.size[1],
-			i.sprite.transparent
 		)
 		
 Game() # Ejecuta el juego
