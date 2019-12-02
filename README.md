@@ -78,7 +78,7 @@ Mientras Mario se va moviendo, su sprite es cambiante. Para saber qué sprite se
 
 * **Variable jumping**: Su valor es True si mario está saltando, y False si está en el suelo. Permite así cambiar entre el sprite de salto y los de tierra.
 
-* **Variable turn**: Si está en el suelo y se está moviendo lateralmente, su sprite va realizando ciclos de tres posiciones distintas. He aquí el algoritmo que controla qué turno del ciclo está corriento en cierto instante:
+* **Variable turn**: Si está en el suelo y se está moviendo lateralmente, su sprite va realizando ciclos de tres posiciones distintas. He aquí el algoritmo que controla qué turno del ciclo está pasando en cierto instante:
     * Primero, se recoge el valor de pyxel.frame_count, que devuelve el número del frame que está sucediendo en ese mismo instante.
     * Tras esto, a este valor se le hace *módulo 30*, convirtiendolo así en un número que va desde el 00 hasta el 29.
     * Todo esto de divide entre 10, haciendo así que se convierta en un decimal que oscila entre 0.0 y 2.9
@@ -86,6 +86,31 @@ Mientras Mario se va moviendo, su sprite es cambiante. Para saber qué sprite se
     * Finalmente se le suma uno, y lo que nos queda es un número que va haciendo ciclos del 1 al 3, cambiando cada 10 fotogramas. Este número es el que más tarde es usado para seleccionar el sprite correspondiente: 'right**1**, right**2**, left**1**, left**2**.. etc.'
 
     > Este proceso se podría simplificar haciendo simplemente módulo 3 del frame_count, pero esto da lugar a un ciclo que cambia cada frame, lo cual yendo a 60 fps o incluso 30 fps es demasiado rápido y antiestético. Con este otro algoritmo, este ciclo cambia de manera 10 veces más lenta.
+
+> ## Posición teórica
+> Pese a que mario es para los ojos del jugador un personaje de cierto tamaño, a la hora de establecer sus propiedades físicas su posición queda registrada como un único punto en el mapa (x, y). 
+Pues bien, pese a que no se ve, ese punto está localizado (para facilitar cosas como la deección del suelo) en los PIES de mario. Esto será de gran utilidad en el siguiente apartado, en la interacción con las plataformas.
+
+## Interacción de Mario con el entorno
+
+### Plataformas
+Las plataformas son un elemento de pantalla que actúan como *suelo* para nuestro personaje. Y al igual que no se cae del fondo de la pantalla de juego, tampoco puede atravesar una plataforma al caer.
+
+Parte de la implementación ya está en realidad hecha: Al poseer una gravedad, Mario va a caer hacia el suelo siempre que no haya ningún obstáculo que se lo impida. Lo único que hay que hacer es que reconozca las plataformas como un obstáculo.
+
+Pero antes de esto, establecemos un modelo de plataforma con el que podamos trabajar adecuadamente, partiendo de la clase que ya habíamos hecho al principio del proyecto.
+
+Dado que la posición "teórica" de mario está literalmente en sus pies, hemos visto bastante conveniente establecer la posición teórica de la plataforma justo al contrario, en el centro superior de su sprite.
+De este modo, podemos saber que Mario está a la altura de la plataforma cuando la posición de los pies esté justo encima que la posición de la plataforma en el eje Y.
+Del mismo modo pero en el eje x, podemos detectar cuando mario está justo encima de la plataforma. Si la distancia en el eje x de los pies de Mario respecto a la coordenada en x de la plataforma no supera el ancho de ésta, sabemos que mario está sobre ella.
+
+He aquí una explicación gráfica que seguro que es más aclaratoria:
+
+![](assets/documentacion_mario_plataforma.png)
+
+> **TOLERANCIA**: Dado que a veces la altura de plataformas contiguas entre sí dista un pixel de distancia, se establece una tolerancia de 2 píxeles en el eje y para que mario pueda caminar sobre ellas detectándolas sin ningún problema.
+
+> Una vez detecta una plataforma en su caída, el protocolo que sigue Mario es idéntico al que sigue cuando detecta el fondo de la pantalla: Su velocidad en el eje Y pasa a ser 0 (se para), su posición en el eje Y se queda justo por encima del "suelo" (en este caso plataforma), y las variables que controlan aspectos como el salto indican que Mario ha llegado a un suelo y que por lo tanto ha dejado de saltar.
 
 # Configuración general del proyecto
 Para agilizar el trabajo en conjunto, hemos decidido crear un repositorio en Github con el que podamos manejar las diferentes versiones del desarrollo del proyecto. (Repositorio obviamente **privado** y con acceso explícito únicamente a los autores del trabajo, para evitar copias)
