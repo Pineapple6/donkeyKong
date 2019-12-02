@@ -155,13 +155,15 @@ class Platarforma(Entity):
 	Las plataformas del mapa
 	'''
 	def init_sprites(self):
-		pass # TODO
+		self.sprite = Sprite((236, 103), (251, 110), 0, 3)
 
 class Map():
 	def __init__(self):
 		self.escaleras = [] # DE TIPO Escalera
-		self.plataformas = [] # DE TIPO Plataforma
-		self.mario = Mario( WIDTH/2, HEIGHT-1, 9.8)
+		self.plataformas = [
+			Platarforma(40, 40, 0)
+		] # DE TIPO Plataforma
+		self.mario = Mario( WIDTH/2, HEIGHT-1, 15)
 		self.mario.setSprite('right1') # sprite inicial
 
 		#TODO:
@@ -195,6 +197,18 @@ class Game:
 			self.map.mario.sprite.size[0], 
 			self.map.mario.sprite.size[1],
 			self.map.mario.sprite.transparent
+		)
+
+		for i in self.map.plataformas:
+			pyxel.blt( # Dibuja a Mario
+			i.x-5, # -5 centra la posición teórica de mario.
+			i.y-14, # -14 pone la posición en sus pies.
+			i.sprite.bank,
+			i.sprite.region_from[0], 
+			i.sprite.region_from[1],
+			i.sprite.size[0], 
+			i.sprite.size[1],
+			i.sprite.transparent
 		)
 		
 Game() # Ejecuta el juego
