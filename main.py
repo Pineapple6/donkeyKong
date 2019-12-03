@@ -90,7 +90,9 @@ class Mario(Entity):
 			'right3':Sprite((192, 21), (207, 35), 0, 3),
 			'left1':Sprite((2, 1), (13, 16), 0, 3),
 			'left2':Sprite((25, 1), (39, 16), 0, 3),
-			'left3':Sprite((49, 2), (63, 16), 0, 3)
+			'left3':Sprite((49, 2), (63, 16), 0, 3),
+			'stairs1':Sprite((74, 1), (87, 17), 0, 3),
+			'stairs2':Sprite((169, 20), (182, 36), 0, 3)
 		}
 
 	def update(self):
@@ -115,7 +117,7 @@ class Mario(Entity):
 
 		if not self.stair:# si no esta en una escalera
 			# SALTO
-			if (pyxel.btn(pyxel.KEY_SPACE)) and not self.jumping:
+			if (pyxel.btn(pyxel.KEY_SPACE)) and (not self.jumping):
 				self.jumping = True # comienza a saltar
 				self.setVelY(-2.5) # le da velocidad a mario pa que salte
 				self.setSprite(self.getSprite()[:-1] + '2') # pasa al sprite de salto, el 2
@@ -133,11 +135,14 @@ class Mario(Entity):
 				self.jumping = False # ya no está saltando
 			else:
 				self.changeY(self.getVelY()) # si no, sigue saltando o cayendo
-		else:
+		else: # si está en la escalera
+			turn = int(pyxel.frame_count%20/10) + 1
 			if pyxel.btn(pyxel.KEY_UP):
 				self.changeY(-0.5)
+				self.setSprite('stairs' + str(turn))
 			if pyxel.btn(pyxel.KEY_DOWN):
 				self.changeY(0.5)
+				self.setSprite('stairs' + str(turn))
 
 class DonkeyKong(Entity):
 	'''
@@ -204,16 +209,7 @@ class Game:
 	def update(self):
 		self.map.mario.update()
 		
-		self.map.mario.stair = False
-		for i in self.map.escaleras: # por cada escalera
-			if (
-				(not self.map.mario.jumping) and
-				(abs((self.map.mario.getX()-5) - (i.x-7)) <= 4) and
-				(abs(i.y-7 - ( self.map.mario.getY() - 7) ) <= 8)
-			): # si está en la escalera
-				self.map.mario.setVelY(0) # se para
-				self.map.mario.jumping = False # ya no está saltando
-				self.map.mario.stair = True # toca una escalera
+		self.map.mario.stair = False # está en una escalera
 
 		for i in self.map.plataformas:# por cada plataforma
 			if (
@@ -225,6 +221,16 @@ class Game:
 				self.map.mario.setY(i.y-1) # se queda en la plataforma
 				self.map.mario.setVelY(0) # se para
 				self.map.mario.jumping = False # ya no está saltando
+		
+		for i in self.map.escaleras: # por cada escalera
+			if (
+				(not self.map.mario.jumping) and
+				(abs((self.map.mario.getX()-5) - (i.x-7)) <= 4) and
+				(abs(i.y-7 - ( self.map.mario.getY() - 7) ) <= 8)
+			): # si está en la escalera
+				self.map.mario.setVelY(0) # se para
+				self.map.mario.jumping = False # ya no está saltando
+				self.map.mario.stair = True # toca una escalera
 
 	def draw(self):
 		pyxel.cls(0) # Limpia la pantalla, todo a negro
