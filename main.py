@@ -115,7 +115,7 @@ class Mario(Entity):
 		# SALTO
 		if (pyxel.btn(pyxel.KEY_SPACE)) and not self.jumping:
 			self.jumping = True # comienza a saltar
-			self.setVelY(-3.5) # le da velocidad a mario pa que salte
+			self.setVelY(-2.5) # le da velocidad a mario pa que salte
 			self.setSprite(self.getSprite()[:-1] + '2') # pasa al sprite de salto, el 2
 
 		# Si no se está moviendo, pasa al sprite 1, el de que está de pie.
@@ -158,9 +158,7 @@ class Escalera(Entity):
 	Las escaleras del mapa
 	'''
 	def init_sprites(self):
-		self.sprites = {
-			'escalera':None # TODO
-		}
+		self.sprite = Sprite((121, 237), (131, 253), 0, 3)
 
 class Platarforma(Entity):
 	'''
@@ -171,10 +169,13 @@ class Platarforma(Entity):
 
 class Map():
 	def __init__(self):
-		self.escaleras = [] # DE TIPO Escalera
+		self.escaleras = [
+			Escalera(10, 185, 0),
+			Escalera(10, 169, 0)
+		] # DE TIPO Escalera
 		self.plataformas = [
 			Platarforma(0, 192, 0),
-			Platarforma(15, 192, 0),
+			Platarforma(15, 167, 0),
 			Platarforma(30, 192, 0),
 			Platarforma(45, 191, 0),
 			Platarforma(60, 190, 0),
@@ -221,6 +222,18 @@ class Game:
 	def draw(self):
 		pyxel.cls(0) # Limpia la pantalla, todo a negro
 		
+		for i in self.map.escaleras:
+			pyxel.blt( # Dibuja el item
+			i.x,
+			i.y,
+			i.sprite.bank,
+			i.sprite.region_from[0], 
+			i.sprite.region_from[1],
+			i.sprite.size[0], 
+			i.sprite.size[1],
+			i.sprite.transparent
+			)
+
 		for i in self.map.plataformas: # Por cada item en map.plataformas
 			pyxel.blt( # Dibuja el item
 			i.x-7,
