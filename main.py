@@ -1,8 +1,8 @@
 import pyxel
 
 # CONFIG
-HEIGHT = 200
-WIDTH = 180
+HEIGHT = 100
+WIDTH = 150
 FPS = 60
 #
 
@@ -82,7 +82,8 @@ class Mario(Entity):
 	Mario, el personaje principal
 	'''
 	def init_sprites(self):
-		self.jumping = False # Importante para seleccionar sprites
+		self.jumping = False # Esta saltando
+		self.stair = False # Esta tocando una escalera
 		self.sprites = {
 			'right1':Sprite((242, 20), (254, 35), 0, 3),
 			'right2':Sprite((216, 20), (230, 35), 0, 3),
@@ -111,26 +112,32 @@ class Mario(Entity):
 				self.setSprite('left' + str(turn)) # Actualiza el sprite
 			else:
 				self.setSprite('left2') # si está saltando simplemente gira
+
+		if not self.stair:# si no esta en una escalera
+			# SALTO
+			if (pyxel.btn(pyxel.KEY_SPACE)) and not self.jumping:
+				self.jumping = True # comienza a saltar
+				self.setVelY(-2.5) # le da velocidad a mario pa que salte
+				self.setSprite(self.getSprite()[:-1] + '2') # pasa al sprite de salto, el 2
+
+			# Si no se está moviendo, pasa al sprite 1, el de que está de pie.
+			# Si no hiciese esto, se quedaria quieto en una posición de estar corriendo, lo cual queda feo.
+			if not self.jumping and not(pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.KEY_LEFT)):
+				self.setSprite(self.getSprite()[:-1] + '1')
 			
-		# SALTO
-		if (pyxel.btn(pyxel.KEY_SPACE)) and not self.jumping:
-			self.jumping = True # comienza a saltar
-			self.setVelY(-2.5) # le da velocidad a mario pa que salte
-			self.setSprite(self.getSprite()[:-1] + '2') # pasa al sprite de salto, el 2
-
-		# Si no se está moviendo, pasa al sprite 1, el de que está de pie.
-		# Si no hiciese esto, se quedaria quieto en una posición de estar corriendo, lo cual queda feo.
-		if not self.jumping and not(pyxel.btn(pyxel.KEY_RIGHT) or pyxel.btn(pyxel.KEY_LEFT)):
-			self.setSprite(self.getSprite()[:-1] + '1')
-
-		# CAIDA
-		self.changeVelY(self.getGravity()/FPS) # la gravedad le afecta (gravedad por segundo --> gravedad/frame por frame)
-		if self.getY() + self.getVelY() >= HEIGHT-1: # si toca el suelo
-			self.setY(HEIGHT-1) # se queda en el suelo
-			self.setVelY(0) # se para
-			self.jumping = False # ya no está saltando
+			# CAIDA
+			self.changeVelY(self.getGravity()/FPS) # la gravedad le afecta (gravedad por segundo --> gravedad/frame por frame)
+			if self.getY() + self.getVelY() >= HEIGHT-1: # si toca el suelo
+				self.setY(HEIGHT-1) # se queda en el suelo
+				self.setVelY(0) # se para
+				self.jumping = False # ya no está saltando
+			else:
+				self.changeY(self.getVelY()) # si no, sigue saltando o cayendo
 		else:
-			self.changeY(self.getVelY()) # si no, sigue saltando o cayendo
+			if pyxel.btn(pyxel.KEY_UP):
+				self.changeY(-0.5)
+			if pyxel.btn(pyxel.KEY_DOWN):
+				self.changeY(0.5)
 
 class DonkeyKong(Entity):
 	'''
@@ -170,21 +177,10 @@ class Platarforma(Entity):
 class Map():
 	def __init__(self):
 		self.escaleras = [
-			Escalera(10, 185, 0),
-			Escalera(10, 169, 0)
+			Escalera(50, 91, 0)
 		] # DE TIPO Escalera
 		self.plataformas = [
-			Platarforma(0, 192, 0),
-			Platarforma(15, 167, 0),
-			Platarforma(30, 192, 0),
-			Platarforma(45, 191, 0),
-			Platarforma(60, 190, 0),
-			Platarforma(75, 189, 0),
-			Platarforma(90, 188, 0),
-			Platarforma(105, 187, 0),
-			Platarforma(120, 186, 0),
-			Platarforma(135, 185, 0),
-			Platarforma(150, 184, 0)
+			Platarforma(50, 84, 0)
 		] # DE TIPO Plataforma
 		self.mario = Mario( WIDTH/2, HEIGHT-1, 9.8)
 		self.mario.setSprite('right1') # sprite inicial
@@ -208,11 +204,22 @@ class Game:
 	def update(self):
 		self.map.mario.update()
 		
+		self.map.mario.stair = False
+		for i in self.map.escaleras: # por cada escalera
+			if (
+				(not self.map.mario.jumping) and
+				(abs((self.map.mario.getX()-5) - (i.x-7)) <= 4) and
+				(abs(i.y-7 - ( self.map.mario.getY() - 7) ) <= 8)
+			): # si está en la escalera
+				self.map.mario.setVelY(0) # se para
+				self.map.mario.jumping = False # ya no está saltando
+				self.map.mario.stair = True # toca una escalera
+
 		for i in self.map.plataformas:# por cada plataforma
 			if (
 				(self.map.mario.getY() + self.map.mario.getVelY() >= i.y-1) and 
 				(self.map.mario.getVelY() > 0) and
-				(abs((self.map.mario.getX()-5) - (i.x-7)) <= 8) and
+				(abs((self.map.mario.getX()-5) - (i.x-7)) <= 9) and
 				(abs(i.y - self.map.mario.getY()) <= 2)
 			): # si toca la plataforma
 				self.map.mario.setY(i.y-1) # se queda en la plataforma
@@ -224,8 +231,8 @@ class Game:
 		
 		for i in self.map.escaleras:
 			pyxel.blt( # Dibuja el item
-			i.x,
-			i.y,
+			i.x-5,
+			i.y-7,
 			i.sprite.bank,
 			i.sprite.region_from[0], 
 			i.sprite.region_from[1],
@@ -233,6 +240,7 @@ class Game:
 			i.sprite.size[1],
 			i.sprite.transparent
 			)
+			pyxel.pix(i.x, i.y, 12)
 
 		for i in self.map.plataformas: # Por cada item en map.plataformas
 			pyxel.blt( # Dibuja el item
