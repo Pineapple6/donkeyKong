@@ -216,7 +216,7 @@ class Game:
 				(self.map.mario.getY() + self.map.mario.getVelY() >= i.y-1) and 
 				(self.map.mario.getVelY() > 0) and
 				(abs((self.map.mario.getX()-5) - (i.x-7)) <= 9) and
-				(abs(i.y - self.map.mario.getY()) <= 2)
+				(abs(i.y - self.map.mario.getY()) <= 3)
 			): # si toca la plataforma
 				self.map.mario.setY(i.y-1) # se queda en la plataforma
 				self.map.mario.setVelY(0) # se para
@@ -231,6 +231,14 @@ class Game:
 				self.map.mario.setVelY(0) # se para
 				self.map.mario.jumping = False # ya no está saltando
 				self.map.mario.stair = True # toca una escalera
+				if (i.y-7 - (self.map.mario.getY() - 7) ) == 8:
+					# SALTO
+					if (pyxel.btn(pyxel.KEY_SPACE)) and (not self.map.mario.jumping):
+						self.map.mario.jumping = True # comienza a saltar
+						self.map.mario.setVelY(-2.5) # le da velocidad a mario pa que salte
+						self.map.mario.setSprite(self.map.mario.getSprite()[:-1] + '2') # pasa al sprite de salto, el 2
+
+
 
 	def draw(self):
 		pyxel.cls(0) # Limpia la pantalla, todo a negro
