@@ -8,7 +8,7 @@ FPS = 60
 
 def abs(num):
 	'''
-	Valor absoluto
+	Función valor absoluto
 	'''
 	if num >= 0:
 		return num
@@ -32,7 +32,8 @@ class Sprite:
 class Entity:
 	'''
 	Define una Entidad que tiene una posición en x, una posición en y,
-	una imagen y a la que le afecta la gravedad.s
+	un sprite (definido explícitamente en la definición de clases hijas a esta) 
+	y a la que le afecta la gravedad.
 	'''
 	def __init__(self, x, y, gravity=9.8):
 		self.x = x
@@ -40,66 +41,128 @@ class Entity:
 		self.vel_y = 0
 		self.gravity = gravity
 		self.init_sprites()
-		# init_sprites() se define en las clases que hereden a Entity, y especifica
+		# init_sprites() se define en las clases hijas de Entity, y especifica
 		# los sprites que va a usar el objeto en cuestión.
-	
+
+	# GETTERS
 	def getX(self):
+		'''
+		Devuelve la posición en x de la entidad
+		'''
 		return self.x
 
-	def changeX(self, val):
-		self.x += val
+	def getY(self):
+		'''
+		Devuelve la posición en y de la entidad
+		'''
+		return self.y
 
+	def getVelY(self):
+		'''
+		Devuelve la velocidad en y de la entidad
+		'''
+		return self.vel_y
+
+	def getGravity(self):
+		'''
+		Devuelve la gravedad de la entidad
+		'''
+		return self.gravity
+
+	def getSprite(self):
+		'''
+		Devuelve el nombre del sprite que está actualmente en uso por la entidad.
+		Esta función es útil en entidades como una instancia de Mario, en la que los
+		diferentes esprites están reunidos en un diccionario con diferentes 'nombres' (keys)
+		para cada uno.
+		'''
+		return self.sprite_name
+
+	# SETTERS
 	def setX(self, val):
+		'''
+		Cambia la posición en x de la entidad al valor val
+		'''
 		self.x = val
-
-	def changeY(self, val):
-		self.y += val
 	
 	def setY(self, val):
+		'''
+		Cambia la posición en y de la entidad al valor val
+		'''
 		self.y = val
 	
-	def getGravity(self):
-		return self.gravity
-	
-	def getY(self):
-		return self.y
-	
 	def setVelY(self, val):
+		'''
+		Cambia la velocidad en y de la entidad al valor val
+		'''
 		self.vel_y = val
 	
-	def getVelY(self):
-		return self.vel_y
-	
-	def changeVelY(self, val):
-		self.vel_y += val
-
 	def setSprite(self, sprite):
-		self.sprite_name = sprite
-		self.sprite = self.sprites[sprite]
-	
-	def getSprite(self):
-		return self.sprite_name
+		'''
+		Cambia el sprite de la entidad al sprite con nombre <sprite>
+		(Para entidades con un diccionario de varios sprites)
+		'''
+		self.sprite_name = sprite # Actualiza la variable sprite_name
+		self.sprite = self.sprites[sprite] # Selecciona el sprite del diccionario y lo actualiza
+
+	# ... CHANGERS?
+	# TODO: Creo que estos métodos es un poco innecesario, pudiendo
+	# hacer Entity.set(Entity.get() + variación)
+	# Si no se usa demasiado yo creo que vendría bien quitarlos y cambiar sus usos
+	# en el código. (Total, pa un par de veces que se usan)
+	def changeX(self, val):
+		'''
+		Varía la posición en x de la entidad la cantidad val
+		'''
+		self.x += val
+
+	def changeY(self, val):
+		'''
+		Varía la posición en y de la entidad la cantidad val
+		'''
+		self.y += val
+
+	def changeVelY(self, val):
+		'''
+		Varía la velocidad en y la cantidad val
+		'''
+		self.vel_y += val
 
 class Mario(Entity):
 	'''
-	Mario, el personaje principal
+	Mario, el personaje principal.
+	Posee propiedades fisicas como la gravedad que hace que caiga al saltar,
+	sprites que van cambiando dependiendo de como se mueva
+	y puede ser controlado por el jugador
 	'''
 	def init_sprites(self):
-		self.jumping = False # Esta saltando
-		self.stair = False # Esta tocando una escalera
-		self.plataforma = False
+		'''
+		Inicia los sprites de Mario
+		'''
+
+		# Estas variables controlan el estado de mario. Dependiendo de estas variables
+		# el rango de movimientos y los sprites de Mario serán distintos.
+		# En realidad la creación de estas variables no es responsabilidad de esta función,
+		# pero como son únicas para Mario se ponen aquí para no complicar más la cosa.
+		self.jumping = False # Salto
+		self.stair = False # escalera
+		self.plataforma = False # plataforma
+
+		# Sprites de Mario
 		self.sprites = {
 			'right1':Sprite((242, 20), (254, 35), 0, 3),
-			'right2':Sprite((216, 20), (230, 35), 0, 3),
+			'right2':Sprite((216, 20), (230, 35), 0, 3), # También usado para el salto
 			'right3':Sprite((192, 21), (207, 35), 0, 3),
 			'left1':Sprite((2, 1), (13, 16), 0, 3),
-			'left2':Sprite((25, 1), (39, 16), 0, 3),
+			'left2':Sprite((25, 1), (39, 16), 0, 3), # También usado para el salto
 			'left3':Sprite((49, 2), (63, 16), 0, 3),
 			'stairs1':Sprite((74, 1), (87, 17), 0, 3),
 			'stairs2':Sprite((169, 20), (182, 36), 0, 3)
 		}
 
 	def update(self):
+
+		# Si no está tocando una escalera o la está tocando pero está sobre una plataforma...
 		if not self.stair or (self.stair and self.plataforma):
 			# La variable turn es el turno, lo que establece cual de los
 			# 3 sprites usar en mario cuando esta corriendo. El algoritmo se explica en la documentación.
@@ -107,9 +170,9 @@ class Mario(Entity):
 
 			# DERECHA E IZQUIERDA
 			if (pyxel.btn(pyxel.KEY_RIGHT)): # si se pulsa la flecha derecha
-				self.changeX(1) # se le da a mario velocidad en x para la derecha
-				if not self.jumping: # Si no está saltando
-					self.setSprite('right' + str(turn)) # Actualiza el sprite
+				self.changeX(1) # se mueve hacia la derecha,
+				if not self.jumping: # Y si no está saltando
+					self.setSprite('right' + str(turn)) # Actualiza el sprite.
 				else:
 					self.setSprite('right2') # si está saltando simplemente gira
 
@@ -145,56 +208,85 @@ class Mario(Entity):
 				self.jumping = False # ya no está saltando
 			else:
 				self.changeY(self.getVelY()) # si no, sigue saltando o cayendo
-		if self.stair: # si está en la escalera
+		
+		if self.stair: # si está en una escalera
+			# El mismo algoritmo, pero cambiado para que oscile entre dos sprites en vez
+			# de 3:
 			turn = int(pyxel.frame_count%20/10) + 1
-			if pyxel.btn(pyxel.KEY_UP):
-				self.changeY(-1)
-				self.setSprite('stairs' + str(turn))
-			if pyxel.btn(pyxel.KEY_DOWN):
-				self.changeY(1)
-				self.setSprite('stairs' + str(turn))
+			
+			if pyxel.btn(pyxel.KEY_UP):# Si se pulsa la flecha arriba
+				self.changeY(-1) # Sube
+				self.setSprite('stairs' + str(turn)) # Actualiza el sprite
+			
+			if pyxel.btn(pyxel.KEY_DOWN):# Si se pulsa la flecha abajo
+				self.changeY(1) # Baja
+				self.setSprite('stairs' + str(turn)) # Actualiza el sprite
 
 class DonkeyKong(Entity):
 	'''
-	Donkey Kong, el enemigo principal del juego
+	Donkey Kong, el enemigo principal del juego.
+	Estático, con sprite cambiante, y su posición es usada
+	como punto de partida para la salida de los barriles (los lanza él)
 	'''
 	def init_sprites(self):
 		pass
 
 class Barril(Entity):
 	'''
-	Los barriles son los proyectiles que Mario tiene que esquivar 
+	Los barriles son los proyectiles que Mario tiene que esquivar.
+	Con propiedades físicas y sprite cambiante, pero no puede ser controlado por el jugador.
 	'''
 	def init_sprites(self):
 		pass
 
 class Pauline(Entity):
 	'''
-	Pauline, la princesa que Mario tiene que rescatar
+	Pauline, la princesa que Mario tiene que rescatar,
+	Estática, pero de vez en cuando su sprite cambia.
 	'''
 	def init_sprites(self):
 		pass
 
 class Escalera(Entity):
 	'''
-	Las escaleras del mapa
+	Las escaleras del mapa.
+	Es estática y de sprite fijo.
 	'''
 	def init_sprites(self):
+		'''Crea el sprite de la escalera'''
 		self.sprite = Sprite((121, 237), (131, 253), 0, 3)
 
 class Platarforma(Entity):
 	'''
-	Las plataformas del mapa
+	Las plataformas del mapa.
+	Estáticas y con sprite fijo.
 	'''
 	def init_sprites(self):
+		'''Crea el sprite de la plataforma'''
 		self.sprite = Sprite((236, 103), (251, 111), 0, 3)
 
 class Map():
+	'''
+	El mapa es el objeto en el que se encuentran todas las entidades del juego.
+	Esta clase no solo nos proporciona un lugar en el que buscar a las entidades,
+	sino que también proporciona un entorno en el que las entidades van a interactuar entre sí.
+	(en Game.update())
+	'''
+
 	def __init__(self):
-		self.escaleras = [] # DE TIPO Escalera
-		self.plataformas = [] # DE TIPO Plataforma
+		'''
+		Inicialización del mapa, se crean todas las entidades que van a convivir en el juego.
+		'''
+
+		self.escaleras = [] # lista que va a contener a todas las escaleras del mapa
+		self.plataformas = [] # Lista que va a contener a todas las plataformas del mapa
 
 		# CREACIÓN DE PLATAFORMAS y ESCALERAS
+		# Todo este cacho de código va añadiendo plataformas partiendo de la posición de la inicial.
+		# mientras tanto, cuando está cerca de una posición en la que hay que dibujar una escalera pues la
+		# dibuja.
+		# curr_plat --> posición de la última plataforma que hemos creado.
+		# TODO: TIENE QUE HABER UNA FORMA DE HACER ESTO SIN TENER QUE HACER ESTA MONSTRUOSIDAD ES FEISIMO ESTO
 		curr_plat = self.crea_plataforma(7, HEIGHT-8, 7)
 		self.escaleras.append(Escalera(curr_plat[0]-15, curr_plat[1]+1, 0))
 		self.escaleras.append(Escalera(curr_plat[0]-15, curr_plat[1]-29, 0))
@@ -227,24 +319,29 @@ class Map():
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1], 9, var_x=-15)
 		self.crea_plataforma(curr_plat[0]+75, curr_plat[1]-31, 3)
 
-		self.mario = Mario( 7, HEIGHT-9, 9.8)
-		self.mario.setSprite('right1') # sprite inicial
+		del curr_plat # ya no se necesita más esta variable, así que se borra de la memoria. 
+
+		self.mario = Mario( 7, HEIGHT-9, 9.8) # Se crea a Mario
+		self.mario.setSprite('right1') # se establece un sprite inicial para Mario (mirando a la derecha)
 
 	def crea_plataforma(self, init_x, init_y, number, var_x=15, var_y=0):
 		'''
-		Crea una 'plataforma grande' (sucesión de plataformas pequeñas)
+		Crea una 'plataforma grande' (sucesión de instancias de Plataforma)
 		init_x, init_y --> coordenadas de la primera plataforma
 		number --> numero de plataformas a crear
-		var_x --> variación en eje x entre plataformas (15 default: justo pegadas)
+		var_x --> variación en eje x entre plataformas (15 default, justo pegadas)
 		var_y --> variación en y de las plataformas. (por default 0, todas rectas)
 		'''
 		
-		for i in range(number):
-			self.plataformas.append(Platarforma(init_x, init_y, 0))
-			init_x += var_x
+		for i in range(number): # tantas veces como se le haya ordenado
+			self.plataformas.append(Platarforma(init_x, init_y, 0)) # añade la plataforma a la lista
+			# Se varía x e y para crear la siguiente plataforma
+			init_x += var_x 
 			init_y += var_y
-
-		return (init_x-var_x, init_y-var_y) # devuelve la posición de la ultima plataforma
+		
+		# devuelve la posición de la ultima plataforma, para
+		# poder partir de ella a la hora de dibujar las siguientes
+		return (init_x-var_x, init_y-var_y)
 
 	#TODO:
 	# self.donkey
@@ -257,42 +354,68 @@ class Game:
 	'''
 	
 	def __init__(self):
-		self.map = Map()
+		'''
+		Inicio del juego: se crea el mapa, se inicia la interfaz de pyxel
+		de acuerdo a las configuraciones preestablecidas y se inicia pyxel.
+		'''
+		self.map = Map() # Crea el mapa, de nombre map 
 		pyxel.init(WIDTH, HEIGHT, caption='Donkey Kong', fps=FPS) # Inicializa pyxel
 		pyxel.load('assets/my_resource.pyxres') # Banco de imagenes
 		pyxel.run(self.update, self.draw) # Ejecuta pyxel con las funciones update y draw definidas en esta misma clase
 		
 	def update(self):
-		self.map.mario.update()
+		'''
+		Esta funcion se ejecuta cada frame, y se encarga de
+		refrescar el estado del juego, actualizando cada entidad
+		en base a sus propiedades y su interacción con otras entidades del 
+		mapa.
+		'''
+
+		self.map.mario.update() # Actualiza la posición de Mario
 		
-		self.map.mario.stair = False # está en una escalera
-		self.map.mario.plataforma = False # esta en una plataforma
+		# Mientras no se demuestre lo contrario, de momento
+		# mario no está tocando ni escaleras ni plataformas.
+		self.map.mario.stair = False
+		self.map.mario.plataforma = False
 		
+		# INTERACCIÓN MARIO-PLATAFORMA
 		for i in self.map.plataformas:# por cada plataforma
-			if (
-				(self.map.mario.getY() + self.map.mario.getVelY() >= i.y-1) and 
+			if ( # SI...
+				# Al continuar mario cayendo atravesaría la plataforma
+				(self.map.mario.getY() + self.map.mario.getVelY() >= i.y-1) and
+				# Y mario está dentro de la plataforma en el eje x 
 				(abs((self.map.mario.getX()-5) - (i.x-7)) <= 9) and
+				# y también lo está en el eje y
 				(abs(i.y - self.map.mario.getY()) <= 3)
-			): # si toca la plataforma
-				self.map.mario.plataforma = True
+			): # está tocando la plataforma, así que
+				self.map.mario.plataforma = True # Está tocando una plataforma
 				self.map.mario.jumping = False # ya no está saltando
-				self.map.mario.setY(i.y-1) # se queda en la plataforma
-				self.map.mario.setVelY(0) # se para
+				self.map.mario.setY(i.y-1) # se queda encima de la plataforma
+				self.map.mario.setVelY(0) # deja de caer
 		
+		# INTERACCIÓN MARIO-ESCALERA
 		for i in self.map.escaleras: # por cada escalera
-			if (
+			if (# SI...
+				# Mario no está saltando
 				(not self.map.mario.jumping) and
+				# Y mario esta dentro de la escalera en el eje x
 				(abs((self.map.mario.getX()-5) - (i.x-7)) <= 3) and
+				# y tambien lo está en el eje Y
 				(abs(i.y-7 - ( self.map.mario.getY() - 7) ) <= 8)
-			): # si está en la escalera
+			): # está en la escalera, así que
 				self.map.mario.setVelY(0) # se para
+				self.map.mario.stair = True # está tocando una escalera
 				self.map.mario.jumping = False # ya no está saltando
-				self.map.mario.stair = True # toca una escalera
-				# if (i.y-7 - ( self.map.mario.getY() - 7) ) == 8:
-					# self.map.mario.stair = False
 
 	def draw(self):
+		'''
+		La función draw se ejecuta cada frame justo después de la función update,
+		y se encarga de dibujar todas las entidades en pantalla.
+		'''
+
 		pyxel.cls(0) # Limpia la pantalla, todo a negro
+
+		# TODO: Las 3 iteraciones de a continuación están pidiendo a gritos una función en común
 
 		for i in self.map.plataformas: # Por cada item en map.plataformas
 			pyxel.blt( # Dibuja el item
