@@ -100,8 +100,6 @@ class Mario(Entity):
 		}
 
 	def update(self):
-		print(self.stair, self.plataforma) # testing QUITAR LUEGO
-
 		if not self.stair or (self.stair and self.plataforma):
 			# La variable turn es el turno, lo que establece cual de los
 			# 3 sprites usar en mario cuando esta corriendo. El algoritmo se explica en la documentación.
@@ -198,13 +196,33 @@ class Map():
 
 		# CREACIÓN DE PLATAFORMAS y ESCALERAS
 		curr_plat = self.crea_plataforma(7, HEIGHT-8, 7)
+		self.escaleras.append(Escalera(curr_plat[0]-15, curr_plat[1]+1, 0))
+		self.escaleras.append(Escalera(curr_plat[0]-15, curr_plat[1]-29, 0))
 		curr_plat = self.crea_plataforma(curr_plat[0], curr_plat[1], 9, var_y=-1)
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19, 0))
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7, 0))
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1]-25, 14, var_x=-15, var_y=-1)
+		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-19, 0))
+		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-7, 0))
+		self.escaleras.append(Escalera(curr_plat[0]+90, curr_plat[1]-23, 0))
+		self.escaleras.append(Escalera(curr_plat[0]+90, curr_plat[1]-7, 0))
+		self.escaleras.append(Escalera(curr_plat[0]+90, curr_plat[1]+5, 0))
 		curr_plat = self.crea_plataforma(curr_plat[0]+15, curr_plat[1]-25, 14, var_y=-1)
+		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19, 0))
+		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7, 0))
+		self.escaleras.append(Escalera(curr_plat[0]-150, curr_plat[1]-23, 0))
+		self.escaleras.append(Escalera(curr_plat[0]-150, curr_plat[1]+5, 0))
+		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]-23, 0))
+		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]-7, 0))
+		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]+5, 0))
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1]-25, 14, var_x=-15, var_y=-1)
+		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-19, 0))
+		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-7, 0))
+		self.escaleras.append(Escalera(curr_plat[0]+150, curr_plat[1]-23, 0))
+		self.escaleras.append(Escalera(curr_plat[0]+150, curr_plat[1]+5, 0))
 		curr_plat = self.crea_plataforma(curr_plat[0]+15, curr_plat[1]-25, 14, var_y=-1)
+		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19, 0))
+		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7, 0))
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1]-25, 5, var_x=-15, var_y=-1)
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1], 9, var_x=-15)
 		self.crea_plataforma(curr_plat[0]+75, curr_plat[1]-31, 3)
@@ -253,15 +271,13 @@ class Game:
 		for i in self.map.plataformas:# por cada plataforma
 			if (
 				(self.map.mario.getY() + self.map.mario.getVelY() >= i.y-1) and 
-				(self.map.mario.getVelY() > 0) and
 				(abs((self.map.mario.getX()-5) - (i.x-7)) <= 9) and
 				(abs(i.y - self.map.mario.getY()) <= 3)
 			): # si toca la plataforma
 				self.map.mario.plataforma = True
 				self.map.mario.jumping = False # ya no está saltando
-				if not self.map.mario.stair:
-					self.map.mario.setY(i.y-1) # se queda en la plataforma
-					self.map.mario.setVelY(0) # se para
+				self.map.mario.setY(i.y-1) # se queda en la plataforma
+				self.map.mario.setVelY(0) # se para
 		
 		for i in self.map.escaleras: # por cada escalera
 			if (
@@ -277,18 +293,6 @@ class Game:
 
 	def draw(self):
 		pyxel.cls(0) # Limpia la pantalla, todo a negro
-		
-		for i in self.map.escaleras:
-			pyxel.blt( # Dibuja el item
-			i.x-5,
-			i.y-7,
-			i.sprite.bank,
-			i.sprite.region_from[0], 
-			i.sprite.region_from[1],
-			i.sprite.size[0], 
-			i.sprite.size[1],
-			i.sprite.transparent
-			)
 
 		for i in self.map.plataformas: # Por cada item en map.plataformas
 			pyxel.blt( # Dibuja el item
@@ -301,6 +305,18 @@ class Game:
 			i.sprite.size[1],
 			i.sprite.transparent
 			)
+		
+		for i in self.map.escaleras:
+			pyxel.blt( # Dibuja el item
+			i.x-5,
+			i.y-7,
+			i.sprite.bank,
+			i.sprite.region_from[0], 
+			i.sprite.region_from[1],
+			i.sprite.size[0], 
+			i.sprite.size[1],
+			i.sprite.transparent
+		)
 
 		pyxel.blt( # Dibuja a Mario
 			self.map.mario.x-5, # -5 centra la posición teórica de mario.
