@@ -50,7 +50,12 @@ class Entity:
 		# los sprites que va a usar el objeto en cuestión.
 
 	def draw(self, correction_x=0, correction_y=0):
-		pyxel.blt( # Dibuja el sprite acutal de la entidad en pyxel
+		'''
+		Dibuja el sprite actual de la entidad en la pantalla de pyxel.
+		La función recibe de manera opcional unos valores de corrección en x e y. De este modo, 
+		se puede ajustar el sprite respecto a la posición (teórica) de la entidad.
+		'''
+		pyxel.blt(
 			self.x + correction_x,
 			self.y + correction_y,
 			self.sprite.bank,
@@ -123,10 +128,10 @@ class Entity:
 		self.sprite = self.sprites[sprite] # Selecciona el sprite del diccionario y lo actualiza
 
 	# ... CHANGERS?
-	# TODO: Creo que estos métodos es un poco innecesario, pudiendo
+	# TODO: Creo que estos métodos son un poco innecesarios, pudiendo
 	# hacer Entity.set(Entity.get() + variación)
-	# Si no se usa demasiado yo creo que vendría bien quitarlos y cambiar sus usos
-	# en el código. (Total, pa un par de veces que se usan)
+	# Si no se usa demasiado yo creo que vendría bien quitarlos y cambiar sus llamadas
+	# en el código. (Total, para un par de veces que se usan)
 	def changeX(self, val):
 		'''
 		Varía la posición en x de la entidad la cantidad val
@@ -249,8 +254,8 @@ class DonkeyKong(Entity):
 	Estático, con sprite cambiante, y su posición es usada
 	como punto de partida para la salida de los barriles (los lanza él)
 	'''
-	def init_sprites(self):
-		pass
+	pass
+	
 
 class Barril(Entity):
 	'''
@@ -258,7 +263,15 @@ class Barril(Entity):
 	Con propiedades físicas y sprite cambiante, pero no puede ser controlado por el jugador.
 	'''
 	def init_sprites(self):
-		pass
+		self.sprites = {
+			'rolling1':Sprite((59, 118), (71, 128), 0, 3),
+			'rolling2':Sprite((83, 118), (95, 128), 0, 3),
+			'rolling3':Sprite((107, 118), (119, 128), 0, 3),
+			'rolling4':Sprite((131, 118), (143, 128), 0, 3),
+			'falling1':Sprite((153, 118), (169, 128), 0, 3),
+			'falling2':Sprite((177, 118), (193, 128), 0, 3)
+		}
+		self.setSprite('rolling1') # Sprite inicial
 
 class Pauline(Entity):
 	'''
@@ -301,6 +314,9 @@ class Map():
 
 		self.escaleras = [] # lista que va a contener a todas las escaleras del mapa
 		self.plataformas = [] # Lista que va a contener a todas las plataformas del mapa
+		self.barriles = [
+			Barril(30, 30, 9.8)
+		] # Lista que va a contener a todos los barriles del mapa
 
 		# CREACIÓN DE PLATAFORMAS y ESCALERAS
 		# Todo este código va añadiendo plataformas partiendo de la posición de la inicial.
