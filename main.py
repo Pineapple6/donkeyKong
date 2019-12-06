@@ -44,6 +44,18 @@ class Entity:
 		# init_sprites() se define en las clases hijas de Entity, y especifica
 		# los sprites que va a usar el objeto en cuestión.
 
+	def draw(self, correction_x=0, correction_y=0):
+		pyxel.blt( # Dibuja el sprite acutal de la entidad en pyxel
+			self.x + correction_x,
+			self.y + correction_y,
+			self.sprite.bank,
+			self.sprite.region_from[0], 
+			self.sprite.region_from[1],
+			self.sprite.size[0], 
+			self.sprite.size[1],
+			self.sprite.transparent
+		)
+
 	# GETTERS
 	def getX(self):
 		'''
@@ -190,6 +202,7 @@ class Mario(Entity):
 				self.setX(0) # Tampoco sale
 
 			# SALTO
+			# Si se pulsa el espacio y no está saltando...
 			if (pyxel.btn(pyxel.KEY_SPACE)) and (not self.jumping):
 				self.jumping = True # comienza a saltar
 				self.setVelY(-2.5) # le da velocidad a mario pa que salte
@@ -209,7 +222,9 @@ class Mario(Entity):
 			else:
 				self.changeY(self.getVelY()) # si no, sigue saltando o cayendo
 		
-		if self.stair: # si está en una escalera
+		# SUBIR O BAJAR ESCALERAS
+		# si está en una escalera
+		if self.stair:
 			# El mismo algoritmo, pero cambiado para que oscile entre dos sprites en vez
 			# de 3:
 			turn = int(pyxel.frame_count%20/10) + 1
@@ -387,7 +402,7 @@ class Game:
 				(abs((self.map.mario.getX()-5) - (i.x-7)) <= 9) and
 				# y también lo está en el eje y
 				(abs(i.y - self.map.mario.getY()) <= 3)
-			): # está tocando la plataforma, así que
+			): # tocará la plataforma, así que:
 				self.map.mario.plataforma = True # Está tocando una plataforma
 				self.map.mario.jumping = False # ya no está saltando
 				self.map.mario.setY(i.y-1) # se queda encima de la plataforma
@@ -405,7 +420,6 @@ class Game:
 			): # está en la escalera, así que
 				self.map.mario.setVelY(0) # se para
 				self.map.mario.stair = True # está tocando una escalera
-				self.map.mario.jumping = False # ya no está saltando
 
 	def draw(self):
 		'''
@@ -415,41 +429,12 @@ class Game:
 
 		pyxel.cls(0) # Limpia la pantalla, todo a negro
 
-		# TODO: Las 3 iteraciones de a continuación están pidiendo a gritos una función en común
-
-		for i in self.map.plataformas: # Por cada item en map.plataformas
-			pyxel.blt( # Dibuja el item
-			i.x-7,
-			i.y,
-			i.sprite.bank,
-			i.sprite.region_from[0], 
-			i.sprite.region_from[1],
-			i.sprite.size[0], 
-			i.sprite.size[1],
-			i.sprite.transparent
-			)
+		for i in self.map.plataformas: # Por cada entidad en map.plataformas
+			i.draw(correction_x=-7) # Dibuja la entidad
 		
-		for i in self.map.escaleras:
-			pyxel.blt( # Dibuja el item
-			i.x-5,
-			i.y-7,
-			i.sprite.bank,
-			i.sprite.region_from[0], 
-			i.sprite.region_from[1],
-			i.sprite.size[0], 
-			i.sprite.size[1],
-			i.sprite.transparent
-		)
+		for i in self.map.escaleras: # Por cada entidad en map.escaleras
+			i.draw(-5, -7) # Dibuja la entidad
 
-		pyxel.blt( # Dibuja a Mario
-			self.map.mario.x-5, # -5 centra la posición teórica de mario.
-			self.map.mario.y-14, # -14 pone la posición en sus pies.
-			self.map.mario.sprite.bank,
-			self.map.mario.sprite.region_from[0], 
-			self.map.mario.sprite.region_from[1],
-			self.map.mario.sprite.size[0], 
-			self.map.mario.sprite.size[1],
-			self.map.mario.sprite.transparent
-		)
+		self.map.mario.draw(-5, -14) # Dibuja a Mario 
 		
 Game() # Ejecuta el juego
