@@ -160,6 +160,33 @@ class Entity:
 		'''
 		self.vel_y += val
 
+class Points_text:
+	'''
+	Texto que se muestra en pantalla al conseguir Mario
+	nuevos puntos.
+	Con una posición y por supuesto un contenido que mostrar.
+	Su variable count representa el número de frames restantes que
+	aparecerá en pantalla antes de desaparecer. 
+	'''
+	def __init__(self, x, y, value, count):
+		'''
+		Se establece su posición en x e y junto a una string
+		que será el texto que mostrará en pantalla
+
+		También crea una variable count, usada como contador de frames
+		restantes en textos temporales (como el que aparece cuando mario
+		consigue puntos) 
+		'''
+		self.x = x
+		self.y = y
+		self.value = value
+		self.count = count
+	
+	def draw(self):
+		if self.count > 0:
+			pyxel.text(self.x, self.y, self.value, 7)
+			self.count -= 1
+
 class Mario(Entity):
 	'''
 	Mario, el personaje principal.
@@ -179,6 +206,8 @@ class Mario(Entity):
 		self.jumping = False # Salto
 		self.stair = False # escalera
 		self.plataforma = False # plataforma
+		self.vidas = 3
+		self.puntos = 0
 
 		# Sprites de Mario
 		self.sprites = {
@@ -270,7 +299,7 @@ class DonkeyKong(Entity):
 class Barril(Entity):
 	'''
 	Los barriles son los proyectiles que Mario tiene que esquivar.
-	Con propiedades físicas y sprite cambiante, pero no puede ser controlado por el jugador.
+	Con propiedades físicas y sprite cambiante, pero no pueden ser controlados por el jugador.
 	'''
 	def init_sprites(self):
 
@@ -279,6 +308,7 @@ class Barril(Entity):
 		self.heading_right = True # Mira pa la derecha 
 		self.plataforma = False # Toca una plataforma
 		self.cayendo = False # Está cayendo (POR UNA ESCALERA)
+		self.jumped = False
 
 		self.sprites = {
 			'rolling1':Sprite((59, 118), (71, 128), 0, 3),
@@ -362,11 +392,12 @@ class Map():
 		Inicialización del mapa, se crean todas las entidades que van a convivir en el juego.
 		'''
 
+		self.mario = Mario( 7, HEIGHT-9, 9.8) # Se crea a Mario
+
+		self.texts = [] # Lista que va a contener todos los textos de puntuación del mapa
 		self.escaleras = [] # lista que va a contener a todas las escaleras del mapa
 		self.plataformas = [] # Lista que va a contener a todas las plataformas del mapa
-		self.barriles = [
-			Barril(30, 30, 4.5)
-		] # Lista que va a contener a todos los barriles del mapa
+		self.barriles = [] # Lista que va a contener a todos los barriles del mapa
 
 		# CREACIÓN DE PLATAFORMAS y ESCALERAS
 		# Todo este código va añadiendo plataformas partiendo de la posición de la inicial.
@@ -414,8 +445,6 @@ class Map():
 		self.crea_plataforma(curr_plat[0]+105, curr_plat[1]-31, 3)
 
 		del curr_plat # ya no se necesita más esta variable, así que se borra de la memoria. 
-
-		self.mario = Mario( 7, HEIGHT-9, 9.8) # Se crea a Mario
 
 	def crea_plataforma(self, init_x, init_y, number, var_x=15, var_y=0):
 		'''
@@ -473,6 +502,10 @@ class Game:
 		self.map.mario.stair = False
 		self.map.mario.plataforma = False
 		
+		# Cuando está a true, los barriles saltados por mario
+		# se resetean y vuelven a poder ser saltados, dandole puntos a Mario
+		barril_reset = False 
+
 		# INTERACCIÓN MARIO-PLATAFORMA
 		for i in self.map.plataformas:# por cada plataforma
 			if ( # SI...
@@ -485,6 +518,7 @@ class Game:
 			): # tocará la plataforma, así que:
 				self.map.mario.plataforma = True # Está tocando una plataforma
 				self.map.mario.jumping = False # ya no está saltando
+				barril_reset = True
 				self.map.mario.setY(i.y-1) # se queda encima de la plataforma
 				self.map.mario.setVelY(0) # deja de caer
 		
@@ -505,6 +539,9 @@ class Game:
 
 		for barril in self.map.barriles: # Repite esto con cada barril
 			barril.update() # Actualiza la posición del barril
+
+			if barril_reset:
+				barril.jumped = False
 
 			barril.plataforma = False # De momento no toca ningaun plataforma
 
@@ -534,11 +571,25 @@ class Game:
 					
 					if barril.cayendo: # Si antes estaba bajando por una escalera
 						barril.cayendo = False # Ya no baja
-						barril.heading_right = toggle(barril.heading_right) # Cambia su dirección (pasa a la plataforma de abajo)
+						barril.heading_right = toggle(barril.heading_right) # Cambia su dirección (dado que pasa a la plataforma de abajo)
 
 					barril.setY(i.y-1) # se queda encima de la plataforma
 					barril.setVelY(0) # deja de caer
 		
+		# INTERACCIÓN MARIO-BARRILES
+		for barril in self.map.barriles:
+			if (
+				(self.map.mario.jumping) and
+				(abs(barril.getX() - self.map.mario.getX()) <= 3) and
+				(barril.getY() - self.map.mario.getY() <= 20) and
+				not barril.jumped
+				):
+				self.map.mario.puntos += 100
+				self.map.texts.append(
+					Points_text(self.map.mario.getX(), self.map.mario.getY(), '100', 65)
+					)
+				barril.jumped = True # El barril ha sido saltado, y ya no dará mas puntos.
+
 		# el "Colector de basuras"
 		# Si hay un barril que se ha salido del mapa (ha llegado al final y
 		# se ha ido) lo desecha de la lista de barriles.
@@ -548,8 +599,22 @@ class Game:
 				new.append(i)
 		self.map.barriles = new
 
+		# el mismo "colector de basuras", pero
+		# esta vez para eliminar los textos de puntuación
+		# que ya no aparecen más en pantalla
+		new = []
+		for i in self.map.texts:
+			if not (i.count <= 0):
+				new.append(i)
+		self.map.texts = new
+
+		del new # Ya no necesitamos la variable de paso
+
+		# Crea nuevos barriles
 		if ( len(self.map.barriles) < 10 ) and (pyxel.frame_count%180 == 179):
 			self.map.barriles.append(Barril(30, 30, 4.5))
+
+		print(len(self.map.texts))
 
 	def draw(self):
 		'''
@@ -568,6 +633,11 @@ class Game:
 		for i in self.map.barriles:
 			i.draw(-5, -9)
 
-		self.map.mario.draw(-5, -14) # Dibuja a Mario 
+		for i in self.map.texts:
+			i.draw()
+
+		self.map.mario.draw(-5, -14) # Dibuja a Mario
+
+		pyxel.text(10, 10, str(self.map.mario.puntos), 7)
 		
 Game() # Ejecuta el juego
