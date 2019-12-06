@@ -35,7 +35,12 @@ class Entity:
 	un sprite (definido explícitamente en la definición de clases hijas a esta) 
 	y a la que le afecta la gravedad.
 	'''
-	def __init__(self, x, y, gravity=9.8):
+	def __init__(self, x, y, gravity=0):
+		'''
+		Inicia la entidad con sus propiedades:
+		una posición en el mapa (x, y) junto a una velocidad en el eje y y una gravedad para
+		que pueda caer
+		'''
 		self.x = x
 		self.y = y
 		self.vel_y = 0
@@ -171,6 +176,7 @@ class Mario(Entity):
 			'stairs1':Sprite((74, 1), (87, 17), 0, 3),
 			'stairs2':Sprite((169, 20), (182, 36), 0, 3)
 		}
+		self.setSprite('right1') # Sprite inicial de Mario. De pie, mirando a la derecha.
 
 	def update(self):
 
@@ -297,39 +303,39 @@ class Map():
 		self.plataformas = [] # Lista que va a contener a todas las plataformas del mapa
 
 		# CREACIÓN DE PLATAFORMAS y ESCALERAS
-		# Todo este cacho de código va añadiendo plataformas partiendo de la posición de la inicial.
-		# mientras tanto, cuando está cerca de una posición en la que hay que dibujar una escalera pues la
-		# dibuja.
-		# curr_plat --> posición de la última plataforma que hemos creado.
+		# Todo este código va añadiendo plataformas partiendo de la posición de la inicial.
+		# mientras tanto, cuando está cerca de una posición en la que hay que dibujar una escalera la
+		# dibuja, ya de paso.
+		# curr_plat --> posición de la última plataforma que se ha creado.
 		# TODO: TIENE QUE HABER UNA FORMA DE HACER ESTO SIN TENER QUE HACER ESTA MONSTRUOSIDAD ES FEISIMO ESTO
 		curr_plat = self.crea_plataforma(7, HEIGHT-8, 7)
-		self.escaleras.append(Escalera(curr_plat[0]-15, curr_plat[1]+1, 0))
-		self.escaleras.append(Escalera(curr_plat[0]-15, curr_plat[1]-29, 0))
+		self.escaleras.append(Escalera(curr_plat[0]-15, curr_plat[1]+1))
+		self.escaleras.append(Escalera(curr_plat[0]-15, curr_plat[1]-29))
 		curr_plat = self.crea_plataforma(curr_plat[0], curr_plat[1], 9, var_y=-1)
-		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19, 0))
-		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7, 0))
+		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19))
+		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7))
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1]-25, 14, var_x=-15, var_y=-1)
-		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-19, 0))
-		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-7, 0))
-		self.escaleras.append(Escalera(curr_plat[0]+90, curr_plat[1]-23, 0))
-		self.escaleras.append(Escalera(curr_plat[0]+90, curr_plat[1]-7, 0))
-		self.escaleras.append(Escalera(curr_plat[0]+90, curr_plat[1]+5, 0))
+		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-19))
+		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-7))
+		self.escaleras.append(Escalera(curr_plat[0]+90, curr_plat[1]-23))
+		self.escaleras.append(Escalera(curr_plat[0]+90, curr_plat[1]-7))
+		self.escaleras.append(Escalera(curr_plat[0]+90, curr_plat[1]+5))
 		curr_plat = self.crea_plataforma(curr_plat[0]+15, curr_plat[1]-25, 14, var_y=-1)
-		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19, 0))
-		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7, 0))
-		self.escaleras.append(Escalera(curr_plat[0]-150, curr_plat[1]-23, 0))
-		self.escaleras.append(Escalera(curr_plat[0]-150, curr_plat[1]+5, 0))
-		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]-23, 0))
-		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]-7, 0))
-		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]+5, 0))
+		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19))
+		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7))
+		self.escaleras.append(Escalera(curr_plat[0]-150, curr_plat[1]-23))
+		self.escaleras.append(Escalera(curr_plat[0]-150, curr_plat[1]+5))
+		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]-23))
+		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]-7))
+		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]+5))
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1]-25, 14, var_x=-15, var_y=-1)
-		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-19, 0))
-		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-7, 0))
-		self.escaleras.append(Escalera(curr_plat[0]+150, curr_plat[1]-23, 0))
-		self.escaleras.append(Escalera(curr_plat[0]+150, curr_plat[1]+5, 0))
+		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-19))
+		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-7))
+		self.escaleras.append(Escalera(curr_plat[0]+150, curr_plat[1]-23))
+		self.escaleras.append(Escalera(curr_plat[0]+150, curr_plat[1]+5))
 		curr_plat = self.crea_plataforma(curr_plat[0]+15, curr_plat[1]-25, 14, var_y=-1)
-		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19, 0))
-		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7, 0))
+		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19))
+		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7))
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1]-25, 5, var_x=-15, var_y=-1)
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1], 9, var_x=-15)
 		self.crea_plataforma(curr_plat[0]+75, curr_plat[1]-31, 3)
@@ -337,7 +343,6 @@ class Map():
 		del curr_plat # ya no se necesita más esta variable, así que se borra de la memoria. 
 
 		self.mario = Mario( 7, HEIGHT-9, 9.8) # Se crea a Mario
-		self.mario.setSprite('right1') # se establece un sprite inicial para Mario (mirando a la derecha)
 
 	def crea_plataforma(self, init_x, init_y, number, var_x=15, var_y=0):
 		'''
@@ -349,7 +354,7 @@ class Map():
 		'''
 		
 		for i in range(number): # tantas veces como se le haya ordenado
-			self.plataformas.append(Platarforma(init_x, init_y, 0)) # añade la plataforma a la lista
+			self.plataformas.append(Platarforma(init_x, init_y)) # añade la plataforma a la lista
 			# Se varía x e y para crear la siguiente plataforma
 			init_x += var_x 
 			init_y += var_y
@@ -375,7 +380,7 @@ class Game:
 		'''
 		self.map = Map() # Crea el mapa, de nombre map 
 		pyxel.init(WIDTH, HEIGHT, caption='Donkey Kong', fps=FPS) # Inicializa pyxel
-		pyxel.load('assets/my_resource.pyxres') # Banco de imagenes
+		pyxel.load('assets/my_resource.pyxres') # Carga el banco de imagenes
 		pyxel.run(self.update, self.draw) # Ejecuta pyxel con las funciones update y draw definidas en esta misma clase
 		
 	def update(self):
