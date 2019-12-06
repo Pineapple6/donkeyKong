@@ -550,8 +550,6 @@ class Game:
 
 		if ( len(self.map.barriles) < 10 ) and (pyxel.frame_count%180 == 179):
 			self.map.barriles.append(Barril(30, 30, 4.5))
-		
-		print(len(self.map.barriles))
 
 	def draw(self):
 		'''
