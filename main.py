@@ -1,4 +1,5 @@
 import pyxel
+import random
 
 # CONFIG
 HEIGHT = 256
@@ -14,6 +15,15 @@ def abs(num):
 		return num
 	else:
 		return -num
+
+def toggle(bul):
+	'''
+	Función 'toggle': devuelve el valor booleano contrario al recibido. 
+	'''
+	if bul:
+		return False
+	else:
+		return True
 
 class Sprite:
 	'''
@@ -263,6 +273,13 @@ class Barril(Entity):
 	Con propiedades físicas y sprite cambiante, pero no puede ser controlado por el jugador.
 	'''
 	def init_sprites(self):
+
+		# Al igual que en Mario, aquí se definen inicialmante varias variables
+		# que sirven para manejar el comportamiento del movimiento del barril.
+		self.heading_right = True # Mira pa la derecha 
+		self.plataforma = False # Toca una plataforma
+		self.cayendo = False # Está cayendo (POR UNA ESCALERA)
+
 		self.sprites = {
 			'rolling1':Sprite((59, 118), (71, 128), 0, 3),
 			'rolling2':Sprite((83, 118), (95, 128), 0, 3),
@@ -272,6 +289,39 @@ class Barril(Entity):
 			'falling2':Sprite((177, 118), (193, 128), 0, 3)
 		}
 		self.setSprite('rolling1') # Sprite inicial
+	
+	def update(self):
+		# QUE NO SALGA POR LOS BORDES LATERALES DE LA PANTALLA (Menos en la zona de inicio)
+		if self.getX() > WIDTH: # Si se sale por la derecha
+			self.setX(WIDTH) # Se queda ahi, no sobrepasa el borde
+			self.heading_right = toggle(self.heading_right)
+		elif self.getX() < 0 and not self.getY() >= 247: # Si se sale por la izquierda (Y no es en la zona de inicio)
+			self.setX(0) # Tampoco sale
+			self.heading_right = toggle(self.heading_right)
+		
+		# CAIDA
+		self.changeVelY(self.getGravity()/FPS) # la gravedad le afecta (gravedad por segundo --> gravedad/frame por frame)
+		if self.getY() + self.getVelY() >= HEIGHT-1: # si toca el suelo
+			self.setY(HEIGHT-1) # se queda en el suelo
+			self.setVelY(0) # se para
+		else:
+			self.changeY(self.getVelY()) # si no, sigue saltando o cayendo
+
+		if not self.cayendo:
+			nums = ['1', '2', '3', '4']
+			turn = int(pyxel.frame_count%40/10)
+			
+			if self.heading_right:
+				turn = nums[turn]
+				self.changeX(1)
+			else:
+				turn = nums[::-1][turn]
+				self.changeX(-1)
+
+			self.setSprite('rolling' + str(turn))
+		else:
+			turn = int(pyxel.frame_count%20/10) + 1
+			self.setSprite('falling' + str(turn))
 
 class Pauline(Entity):
 	'''
@@ -315,7 +365,7 @@ class Map():
 		self.escaleras = [] # lista que va a contener a todas las escaleras del mapa
 		self.plataformas = [] # Lista que va a contener a todas las plataformas del mapa
 		self.barriles = [
-			Barril(30, 30, 9.8)
+			Barril(30, 30, 4.5)
 		] # Lista que va a contener a todos los barriles del mapa
 
 		# CREACIÓN DE PLATAFORMAS y ESCALERAS
@@ -326,7 +376,7 @@ class Map():
 		# TODO: TIENE QUE HABER UNA FORMA DE HACER ESTO SIN TENER QUE HACER ESTA MONSTRUOSIDAD ES FEISIMO ESTO
 		curr_plat = self.crea_plataforma(7, HEIGHT-8, 7)
 		self.escaleras.append(Escalera(curr_plat[0]-15, curr_plat[1]+1))
-		self.escaleras.append(Escalera(curr_plat[0]-15, curr_plat[1]-29))
+		self.escaleras.append(Escalera(curr_plat[0]-15, curr_plat[1]-34))
 		curr_plat = self.crea_plataforma(curr_plat[0], curr_plat[1], 9, var_y=-1)
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19))
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7))
@@ -339,22 +389,29 @@ class Map():
 		curr_plat = self.crea_plataforma(curr_plat[0]+15, curr_plat[1]-25, 14, var_y=-1)
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19))
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7))
-		self.escaleras.append(Escalera(curr_plat[0]-150, curr_plat[1]-23))
+		self.escaleras.append(Escalera(curr_plat[0]-150, curr_plat[1]-27))
 		self.escaleras.append(Escalera(curr_plat[0]-150, curr_plat[1]+5))
-		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]-23))
-		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]-7))
-		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]+5))
+		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]-24))
+		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]-8))
+		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]+4))
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1]-25, 14, var_x=-15, var_y=-1)
+		self.escaleras.append(Escalera(curr_plat[0]+75, curr_plat[1]-22))
+		self.escaleras.append(Escalera(curr_plat[0]+75, curr_plat[1]-10))
+		self.escaleras.append(Escalera(curr_plat[0]+75, curr_plat[1]+2))
 		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-19))
 		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-7))
-		self.escaleras.append(Escalera(curr_plat[0]+150, curr_plat[1]-23))
+		self.escaleras.append(Escalera(curr_plat[0]+150, curr_plat[1]-27))
 		self.escaleras.append(Escalera(curr_plat[0]+150, curr_plat[1]+5))
 		curr_plat = self.crea_plataforma(curr_plat[0]+15, curr_plat[1]-25, 14, var_y=-1)
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19))
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7))
+		self.escaleras.append(Escalera(curr_plat[0]-120, curr_plat[1]-22))
+		self.escaleras.append(Escalera(curr_plat[0]-120, curr_plat[1]+5))
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1]-25, 5, var_x=-15, var_y=-1)
+		self.escaleras.append(Escalera(curr_plat[0], curr_plat[1]-8))
+		self.escaleras.append(Escalera(curr_plat[0], curr_plat[1]-24))
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1], 9, var_x=-15)
-		self.crea_plataforma(curr_plat[0]+75, curr_plat[1]-31, 3)
+		self.crea_plataforma(curr_plat[0]+105, curr_plat[1]-31, 3)
 
 		del curr_plat # ya no se necesita más esta variable, así que se borra de la memoria. 
 
@@ -407,6 +464,8 @@ class Game:
 		mapa.
 		'''
 
+		# ----------- MARIO -------------
+
 		self.map.mario.update() # Actualiza la posición de Mario
 		
 		# Mientras no se demuestre lo contrario, de momento
@@ -442,6 +501,58 @@ class Game:
 				self.map.mario.setVelY(0) # se para
 				self.map.mario.stair = True # está tocando una escalera
 
+		# ------------- BARRILES ---------------
+
+		for barril in self.map.barriles: # Repite esto con cada barril
+			barril.update() # Actualiza la posición del barril
+
+			barril.plataforma = False # De momento no toca ningaun plataforma
+
+			# INTERACCIÓN BARRIL-ESCALERA
+			for i in self.map.escaleras: # por cada escalera
+				if (# SI...
+					# esta dentro de la escalera en el eje x
+					(abs(barril.getX() - i.x+5) <= 3) and
+					( int(i.y-7 - barril.getY()) == 0)
+					): # está en la escalera, así que
+					if random.randint(1, 4) == 4: # 1/4 de posibilidades de que eso pase, 25%
+						barril.cayendo = True
+						barril.changeY(4)
+
+			
+			# INTERACCIÓN BARRIL-PLATAFORMA
+			for i in self.map.plataformas:# por cada plataforma
+				if ( # SI...
+					# Al continuar cayendo atravesaría la plataforma
+					(barril.getY() + barril.getVelY() >= i.y-1) and
+					# Y está dentro de la plataforma en el eje x 
+					(abs((barril.getX()-5) - (i.x-7)) <= 9) and
+					# y también lo está en el eje y
+					(abs(i.y - barril.getY()) <= 3)
+				): # tocará la plataforma, así que:
+					barril.plataforma = True # Ahora está en una plataforma
+					
+					if barril.cayendo: # Si antes estaba bajando por una escalera
+						barril.cayendo = False # Ya no baja
+						barril.heading_right = toggle(barril.heading_right) # Cambia su dirección (pasa a la plataforma de abajo)
+
+					barril.setY(i.y-1) # se queda encima de la plataforma
+					barril.setVelY(0) # deja de caer
+		
+		# el "Colector de basuras"
+		# Si hay un barril que se ha salido del mapa (ha llegado al final y
+		# se ha ido) lo desecha de la lista de barriles.
+		new = []
+		for i in self.map.barriles:
+			if not ( (i.getX() < 0) and (i.getY() >= 247) ):
+				new.append(i)
+		self.map.barriles = new
+
+		if ( len(self.map.barriles) < 10 ) and (pyxel.frame_count%180 == 179):
+			self.map.barriles.append(Barril(30, 30, 4.5))
+		
+		print(len(self.map.barriles))
+
 	def draw(self):
 		'''
 		La función draw se ejecuta cada frame justo después de la función update,
@@ -450,11 +561,14 @@ class Game:
 
 		pyxel.cls(0) # Limpia la pantalla, todo a negro
 
+		for i in self.map.escaleras: # Por cada entidad en map.escaleras
+			i.draw(-5, -7) # Dibuja la entidad
+
 		for i in self.map.plataformas: # Por cada entidad en map.plataformas
 			i.draw(correction_x=-7) # Dibuja la entidad
 		
-		for i in self.map.escaleras: # Por cada entidad en map.escaleras
-			i.draw(-5, -7) # Dibuja la entidad
+		for i in self.map.barriles:
+			i.draw(-5, -9)
 
 		self.map.mario.draw(-5, -14) # Dibuja a Mario 
 		
