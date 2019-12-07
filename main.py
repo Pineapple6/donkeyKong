@@ -453,6 +453,7 @@ class Map():
 
 		self.texts = [] # Lista que va a contener todos los textos de puntuación del mapa
 		self.escaleras = [] # lista que va a contener a todas las escaleras del mapa
+		self.escaleras_no_interactua = [] # Escaleras en las que mario NO PUEDE BAJAR (rotas)
 		self.plataformas = [] # Lista que va a contener a todas las plataformas del mapa
 		self.barriles = [] # Lista que va a contener a todos los barriles del mapa
 
@@ -464,7 +465,7 @@ class Map():
 		# TODO: TIENE QUE HABER UNA FORMA DE HACER ESTO SIN TENER QUE HACER ESTA MONSTRUOSIDAD ES FEISIMO ESTO
 		curr_plat = self.crea_plataforma(7, HEIGHT-8, 7)
 		self.escaleras.append(Escalera(curr_plat[0]-15, curr_plat[1]+1))
-		self.escaleras.append(Escalera(curr_plat[0]-15, curr_plat[1]-34))
+		self.escaleras_no_interactua.append(Escalera(curr_plat[0]-15, curr_plat[1]-34))
 		curr_plat = self.crea_plataforma(curr_plat[0], curr_plat[1], 9, var_y=-1)
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19))
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7))
@@ -477,7 +478,7 @@ class Map():
 		curr_plat = self.crea_plataforma(curr_plat[0]+15, curr_plat[1]-25, 14, var_y=-1)
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19))
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7))
-		self.escaleras.append(Escalera(curr_plat[0]-150, curr_plat[1]-27))
+		self.escaleras_no_interactua.append(Escalera(curr_plat[0]-150, curr_plat[1]-27))
 		self.escaleras.append(Escalera(curr_plat[0]-150, curr_plat[1]+5))
 		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]-24))
 		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]-8))
@@ -488,12 +489,12 @@ class Map():
 		self.escaleras.append(Escalera(curr_plat[0]+75, curr_plat[1]+2))
 		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-19))
 		self.escaleras.append(Escalera(curr_plat[0]+30, curr_plat[1]-7))
-		self.escaleras.append(Escalera(curr_plat[0]+150, curr_plat[1]-27))
+		self.escaleras_no_interactua.append(Escalera(curr_plat[0]+150, curr_plat[1]-27))
 		self.escaleras.append(Escalera(curr_plat[0]+150, curr_plat[1]+5))
 		curr_plat = self.crea_plataforma(curr_plat[0]+15, curr_plat[1]-25, 14, var_y=-1)
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19))
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7))
-		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]-22))
+		self.escaleras_no_interactua.append(Escalera(curr_plat[0]-105, curr_plat[1]-22))
 		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]+5))
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1]-25, 5, var_x=-15, var_y=-1)
 		self.escaleras.append(Escalera(curr_plat[0], curr_plat[1]-8))
@@ -604,6 +605,12 @@ class Game:
 					pyxel.btn(pyxel.KEY_DOWN)
 					):
 					self.map.mario.changeY(4) # 4 a la vez para que baje de la plataforma
+				if (
+					( int(i.y - 7 - self.map.mario.getY() ) < 0) and 
+					self.map.mario.plataforma and
+					pyxel.btn(pyxel.KEY_DOWN)
+					):
+					self.map.mario.changeY(-1) # No cae de una escalera rota
 
 		# ------------- BARRILES ---------------
 
@@ -616,7 +623,7 @@ class Game:
 			barril.plataforma = False # De momento no toca ningaun plataforma
 
 			# INTERACCIÓN BARRIL-ESCALERA
-			for i in self.map.escaleras: # por cada escalera
+			for i in self.map.escaleras + self.map.escaleras_no_interactua: # por cada escalera
 				if (# SI...
 					# esta dentro de la escalera en el eje x
 					(abs(barril.getX() - i.x+5) <= 3) and
@@ -702,7 +709,7 @@ class Game:
 		pyxel.cls(0) # Limpia la pantalla, todo a negro
 		pyxel.blt(9, 26, 0, 3, 98, 20, 33, 3) #Imagen estática de barriles donde DONKEY KONG cogerá los barriles y los lanzará
 		
-		for i in self.map.escaleras: # Por cada entidad en map.escaleras
+		for i in self.map.escaleras + self.map.escaleras_no_interactua: # Por cada escalera (incluidas las que no baja)
 			i.draw(-5, -7) # Dibuja la entidad
 			# DEBUG: pyxel.pix(i.x, i.y - 7, 3)
 
