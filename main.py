@@ -684,7 +684,7 @@ class Game:
 		'''
 
 		pyxel.cls(0) # Limpia la pantalla, todo a negro
-		pyxel.blt(12, 26, 0, 3, 98, 20, 33, 3) #Imagen estática de barriles donde DONKEY KONG cogerá los barriles y los lanzará
+		pyxel.blt(9, 26, 0, 3, 98, 20, 33, 3) #Imagen estática de barriles donde DONKEY KONG cogerá los barriles y los lanzará
 		
 		for i in self.map.escaleras: # Por cada entidad en map.escaleras
 			i.draw(-5, -7) # Dibuja la entidad
