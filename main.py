@@ -605,12 +605,6 @@ class Game:
 					pyxel.btn(pyxel.KEY_DOWN)
 					):
 					self.map.mario.changeY(4) # 4 a la vez para que baje de la plataforma
-				if (
-					( int(i.y - 7 - self.map.mario.getY() ) < 0) and 
-					self.map.mario.plataforma and
-					pyxel.btn(pyxel.KEY_DOWN)
-					):
-					self.map.mario.changeY(-1) # No cae de una escalera rota
 
 		# ------------- BARRILES ---------------
 
