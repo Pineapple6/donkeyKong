@@ -336,11 +336,10 @@ class DonkeyKong(Entity):
 				num = '2'
 			else:
 				num = '3'
-
 			self.setSprite('coge_barril' + num)
 			del num
 			self.turn -= 1
-
+		
 class Barril(Entity):
 	'''
 	Los barriles son los proyectiles que Mario tiene que esquivar.
@@ -604,8 +603,7 @@ class Game:
 				self.map.mario.setY(HEIGHT-9)
 				self.map.mario.setSprite('right1')
 
-		# Mientras no se demuestre lo contrario, de momento
-		# mario no está tocando ni escaleras ni plataformas.
+		# Mientras no se demuestre lo contrario, de momento, Mario no está tocando ni escaleras ni plataformas.
 		self.map.mario.stair = False
 		self.map.mario.plataforma = False
 		
@@ -618,7 +616,7 @@ class Game:
 			if ( # SI...
 				# Al continuar mario cayendo atravesaría la plataforma
 				(self.map.mario.getY() + self.map.mario.getVelY() >= i.y-1) and
-				# Y mario está dentro de la plataforma en el eje x 
+				# Y mario está dentro de la plSataforma en el eje x 
 				(abs((self.map.mario.getX()-5) - (i.x-7)) <= 9) and
 				# y también lo está en el eje y
 				(abs(i.y - self.map.mario.getY()) <= 3)
@@ -762,6 +760,7 @@ class Game:
 		if self.map.donkey.getSprite() == 'coge_barril2':
 			self.map.donkey.barril_lanzado = False
 
+
 	def draw(self):
 		'''
 		La función draw se ejecuta cada frame justo después de la función update,
@@ -791,6 +790,7 @@ class Game:
 				pyxel.blt(120, 5, 0, 1, 197, 23, 9, 3)
 				self.map.pauline.help -= 1
 
+
 			self.map.donkey.draw() # Dibuja a DONKEY KONG
 
 			if (self.map.mario.getY() <= 27 and self.map.mario.plataforma):
@@ -815,8 +815,12 @@ class Game:
 			del x # Esta variable ya no hace falta asi que se borra
 		else:
 			# Pinta el texto del final del juego
-			pyxel.text(WIDTH/2-20, HEIGHT/2, 'GAME OVER', 7)
-			pyxel.text(WIDTH/2-40, HEIGHT/2+30, 'PUNTOS CONSEGUIDOS:', 7)
+			pyxel.text(WIDTH/2-20, HEIGHT/2-30, 'GAME OVER', pyxel.frame_count % 15)
+			pyxel.text(WIDTH/2-40, HEIGHT/2, 'PUNTOS CONSEGUIDOS:', 7)
 			# Pinta los puntos, mas o menos centrados en la pantalla
-			pyxel.text(WIDTH/2-3*len(str(self.map.mario.puntos)), HEIGHT/2+40, str(self.map.mario.puntos), 7)
+			pyxel.text(WIDTH/2-3*len(str(self.map.mario.puntos)), HEIGHT/2+10, str(self.map.mario.puntos), 7)
+			pyxel.text(WIDTH-85, HEIGHT-10, 'PRESS "ENTER" TO QUIT', 5)
+			if pyxel.btnp(pyxel.KEY_ENTER):
+				pyxel.quit()
+
 Game() # Ejecuta el juego
