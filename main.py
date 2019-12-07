@@ -313,7 +313,7 @@ class DonkeyKong(Entity):
 	def update(self):
 		if self.turn == 0:
 			self.setSprite('static')
-			if pyxel.frame_count%300 == 0:
+			if pyxel.frame_count%150 == 0:
 				self.turn = 60
 		else:
 			if self.turn >= 40:
