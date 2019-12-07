@@ -407,28 +407,37 @@ class Pauline(Entity):
 		self.sprites = {
 			'static':Sprite((3,229), (16,252), 0,3),
 			'moving1':Sprite((26,229), (42,252), 0, 3),
-			'moving2':Sprite((50,229), (66,252), 0, 3),
-			'help':Sprite((1,197), (24,206), 0, 3)
-			#--------------'life':Sprite((240,200), (248,209), 0, 3)--------------
+			'moving2':Sprite((50,229), (66,252), 0, 3)
 		}
 		self.setSprite('static') #Sprite principal de Pauline
-		self.turn =0 # Pauline mantendrá la misma imagen cuando no pida ayuda
+		self.turn = 0 # Pauline mantendrá la misma imagen cuando no pida ayuda
+		# Pauline está haciendo el baile de auxilio
+		self.help = 0
+		self.dancing = False
+		self.rescatada = False
 
 	def update(self):
-		if self.turn == 0:
-			self.setSprite('static')
-			if pyxel.frame_count%300 == 299: # Cada 5 sec. Pauline pide ayuda
-				self.turn = 75		
-		else:
-			if (self.turn<=10) or (40<self.turn<=50):
-				self.setSprite('moving1')
-			elif (10<self.turn<=20) or (30<self.turn<=40) or (50<self.turn<=60) or (self.turn>=70):
-				self.setSprite('moving2')
-			elif (20<self.turn<=30) or (60<self.turn<70):
-				self.setSprite('static')
-			
+		if not self.rescatada:
+			if self.turn == 0:
 
-			self.turn-=1
+				if self.dancing:
+					self.dancing = False
+					self.help = 60
+
+				self.setSprite('static')
+				if pyxel.frame_count%300 == 299: # Cada 5 sec. Pauline baila
+					self.turn = 75	
+			else:
+				self.dancing = True
+				if (self.turn<=10) or (40<self.turn<=50):
+					self.setSprite('moving1')
+				elif (10<self.turn<=20) or (30<self.turn<=40) or (50<self.turn<=60) or (self.turn>=70):
+					self.setSprite('moving2')
+				elif (20<self.turn<=30) or (60<self.turn<70):
+					self.setSprite('static')
+				
+
+				self.turn-=1
 
 
 class Escalera(Entity):
@@ -679,7 +688,7 @@ class Game:
 
 					barril.setY(i.y-1) # se queda encima de la plataforma
 					barril.setVelY(0) # deja de caer
-		
+
 		# INTERACCIÓN MARIO-BARRILES
 		for barril in self.map.barriles:
 			if (# Si está saltando
@@ -707,6 +716,19 @@ class Game:
 				# Secuencia de muerte de Mario
 				self.map.mario.die()
 				self.die_temp = 300 # Añade tiempo al temporizador
+		
+		# INTERACCIÓN MARIO-DONKEY KONG
+		if(
+			# si Mario se alinea con donkey en el eje x
+			(abs(self.map.donkey.getX() + 21 - self.map.mario.getX()) <= 21) and
+			# Y está 'dentro' de donkey en el eje Y
+			(self.map.mario.getY() - self.map.donkey.getY() < 42) and
+			(self.map.mario.getY() - self.map.donkey.getY() >= 0) and
+			not self.map.mario.died # Para que no le mate repetidamente
+			):# Mario stá tocando a donkey, así que
+			# Secuencia de muerte de Mario
+			self.map.mario.die()
+			self.die_temp = 300 # Añade tiempo al temporizador
 
 		# el "Colector de basuras"
 		# Si hay un barril que se ha salido del mapa (ha llegado al final y
@@ -765,11 +787,20 @@ class Game:
 				i.draw()
 
 			self.map.pauline.draw() # Dibuja a Pauline 
-
-			self.map.mario.draw(-5, -14) # Dibuja a Mario
-			# DEBUG: pyxel.pix(self.map.mario.getX(), self.map.mario.getY(), 10)
+			if self.map.pauline.help > 0:
+				pyxel.blt(120, 5, 0, 1, 197, 23, 9, 3)
+				self.map.pauline.help -= 1
 
 			self.map.donkey.draw() # Dibuja a DONKEY KONG
+
+			if (self.map.mario.getY() <= 27 and self.map.mario.plataforma):
+				pyxel.blt(120, 10, 0, 98, 195, 16, 14, 3) # Pinta el corazon
+				self.map.pauline.rescatada = True
+			else:
+				self.map.pauline.rescatada = False
+			
+			self.map.mario.draw(-5, -14) # Dibuja a Mario
+			# DEBUG: pyxel.pix(self.map.mario.getX(), self.map.mario.getY(), 10)
 
 			# Texto que muestra los puntos pon pantalla
 			# Siempre tiene que ocupar 5 casillas, así que lo que falte
