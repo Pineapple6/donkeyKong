@@ -95,6 +95,7 @@ class Entity:
 		'''
 		return self.vel_y
 
+
 	def getGravity(self):
 		'''
 		Devuelve la gravedad de la entidad
