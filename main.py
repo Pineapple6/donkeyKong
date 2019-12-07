@@ -330,6 +330,7 @@ class DonkeyKong(Entity):
 			if pyxel.frame_count%150 == 0:
 				self.turn = 60
 		else:
+				
 			if self.turn >= 40:
 				num = '1'
 			elif self.turn <= 40 and self.turn >= 20:
@@ -434,8 +435,6 @@ class Pauline(Entity):
 					self.setSprite('moving2')
 				elif (20<self.turn<=30) or (60<self.turn<70):
 					self.setSprite('static')
-				
-
 				self.turn-=1
 
 
@@ -749,17 +748,24 @@ class Game:
 		del new # Ya no necesitamos la variable de paso
 
 		# DONKEY KONG LANZA BARRILES
-		if (
-			(self.map.donkey.getSprite() == 'coge_barril3') and
-			(not self.map.donkey.barril_lanzado) and
-			(len(self.map.barriles) < 10 )
-			):
-			self.map.barriles.append(Barril(73, 60, 4.5))
-			self.map.donkey.barril_lanzado = True
+		if not self.map.pauline.help >0:
+			if (
+				(self.map.donkey.getSprite() == 'coge_barril3') and
+				(not self.map.donkey.barril_lanzado) and
+				(len(self.map.barriles) < 10 )
+				):
+				self.map.barriles.append(Barril(73, 60, 4.5))
+				self.map.donkey.barril_lanzado = True
 
-		if self.map.donkey.getSprite() == 'coge_barril2':
-			self.map.donkey.barril_lanzado = False
+			if self.map.donkey.getSprite() == 'coge_barril2':
+				self.map.donkey.barril_lanzado = False
+		else:
 
+			if self.map.pauline.help<=30:
+				self.map.donkey.setSprite('angry1')
+			elif self.map.pauline.help>30:
+				self.map.donkey.setSprite('angry2')
+			self.map.pauline.help -=1
 
 	def draw(self):
 		'''
