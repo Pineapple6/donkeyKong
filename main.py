@@ -209,6 +209,7 @@ class Mario(Entity):
 		self.plataforma = False # plataforma
 		self.vidas = 3
 		self.puntos = 0
+		self.died = False
 
 		# Sprites de Mario
 		self.sprites = {
@@ -219,7 +220,11 @@ class Mario(Entity):
 			'left2':Sprite((25, 1), (39, 16), 0, 3), # También usado para el salto
 			'left3':Sprite((49, 2), (63, 16), 0, 3),
 			'stairs1':Sprite((74, 1), (87, 17), 0, 3),
-			'stairs2':Sprite((169, 20), (182, 36), 0, 3)
+			'stairs2':Sprite((169, 20), (182, 36), 0, 3),
+			'die1':Sprite((97, 48), (113, 62), 0, 3),
+			'die2':Sprite((121, 48), (137, 64), 0, 3),
+			'die3':Sprite((116, 77), (132, 93), 0, 3),
+			'die4':Sprite((145, 48), (161, 64), 0, 3)
 		}
 		self.setSprite('right1') # Sprite inicial de Mario. De pie, mirando a la derecha.
 
@@ -287,6 +292,15 @@ class Mario(Entity):
 			if pyxel.btn(pyxel.KEY_DOWN):# Si se pulsa la flecha abajo
 				self.changeY(1) # baja
 				self.setSprite('stairs' + str(turn)) # Actualiza el sprite
+	
+	def die(self):
+		'''
+		Mario sufre el impacto de un barril. Pierde una vida, y se inicia la secuencia de 
+		muerte de mario.
+		Si no tiene mas vidas, se acaba el juego. 
+		'''
+		self.vidas -= 1
+		self.died = True
 
 class DonkeyKong(Entity):
 	'''
@@ -529,11 +543,6 @@ class Map():
 		# poder partir de ella a la hora de dibujar las siguientes
 		return (init_x-var_x, init_y-var_y)
 
-	#TODO:
-	# self.donkey
-	# self.pauline
-	# ... etc
-
 class Game:
 	'''
 	El juego (pyxel)
@@ -545,6 +554,8 @@ class Game:
 		de acuerdo a las configuraciones preestablecidas y se inicia pyxel.
 		'''
 		self.map = Map() # Crea el mapa, de nombre map 
+		self.die_temp = 0 # Controla cuanto dura la secuencia de muerte
+		self.end = False # El juego ha terminado
 		pyxel.init(WIDTH, HEIGHT, caption='Donkey Kong', fps=FPS) # Inicializa pyxel
 		pyxel.load('assets/my_resource.pyxres') # Carga el banco de imagenes
 		pyxel.run(self.update, self.draw) # Ejecuta pyxel con las funciones update y draw definidas en esta misma clase
@@ -558,10 +569,32 @@ class Game:
 		'''
 
 		# ----------- MARIO -------------
-		self.map.donkey.update() # Actualiza a Donkey Kong
-		self.map.pauline.update() # Actualiza a Pauline
-		self.map.mario.update() # Actualiza la posición de Mario
-		
+		if not self.map.mario.died: # si mario no esta en la secuencia de muerte
+			# Todo transcurre normal, todo se actualiza
+			self.map.donkey.update() # Actualiza a Donkey Kong
+			self.map.pauline.update() # Actualiza a Pauline
+			self.map.mario.update() # Actualiza la posición de Mario
+		else:# si no...
+			# Desaparecen ciertas entidades como los barriles y el texto de nuevos puntos
+			self.map.barriles = []
+			self.map.texts = []
+			if not self.die_temp == 0:
+				if self.die_temp >= 250:
+					self.map.mario.setSprite('die1')
+				elif self.die_temp <= 160:
+					self.map.mario.setSprite('die4')
+				else:
+					turn = int(pyxel.frame_count%30/10) + 1
+					self.map.mario.setSprite('die' + str(turn))
+				self.die_temp -= 1
+			else:
+				if self.map.mario.vidas == 0:
+					self.end = True # Se acaba el juego
+				self.map.mario.died = False
+				self.map.mario.setX(7)
+				self.map.mario.setY(HEIGHT-9)
+				self.map.mario.setSprite('right1')
+
 		# Mientras no se demuestre lo contrario, de momento
 		# mario no está tocando ni escaleras ni plataformas.
 		self.map.mario.stair = False
@@ -649,18 +682,31 @@ class Game:
 		
 		# INTERACCIÓN MARIO-BARRILES
 		for barril in self.map.barriles:
-			if (
+			if (# Si está saltando
 				(self.map.mario.jumping) and
+				# Y se alinea con el barril en el eje x
 				(abs(barril.getX() - self.map.mario.getX()) <= 3) and
+				# Y está también alineado con el en el eje Y (pasando por encima)
 				(barril.getY() - self.map.mario.getY() <= 20) and
-				(barril.getY() - self.map.mario.getY() >= 0) and
+				(barril.getY() - self.map.mario.getY() >= 11) and
+				# Y el barril no ha sido saltado todavía durante ese salto de Mario
 				not barril.jumped
 				):
-				self.map.mario.puntos += 100
-				self.map.texts.append(
+				self.map.mario.puntos += 100 # Añade más puntos
+				self.map.texts.append( # Se añade el texto de puntuación nueva para que sea dibujado
 					Points_text(self.map.mario.getX(), self.map.mario.getY(), '100', 65)
 					)
-				barril.jumped = True # El barril ha sido saltado, y ya no dará mas puntos.
+				barril.jumped = True # El barril ha sido saltado, y ya no dará mas puntos hasta que Mario vuelva a saltar.
+			elif (
+				# Y se alinea con el barril en el eje x
+				(abs(barril.getX() - self.map.mario.getX()) <= 3) and
+				# Y está 'dentro' del barril en el eje Y
+				(barril.getY() - self.map.mario.getY() < 11) and
+				(barril.getY() - self.map.mario.getY() >= 0)
+				):# Está tocando el barril, así que
+				# Secuencia de muerte de Mario
+				self.map.mario.die()
+				self.die_temp = 300 # Añade tiempo al temporizador
 
 		# el "Colector de basuras"
 		# Si hay un barril que se ha salido del mapa (ha llegado al final y
@@ -701,29 +747,45 @@ class Game:
 		'''
 
 		pyxel.cls(0) # Limpia la pantalla, todo a negro
-		pyxel.blt(9, 26, 0, 3, 98, 20, 33, 3) #Imagen estática de barriles donde DONKEY KONG cogerá los barriles y los lanzará
-		
-		for i in self.map.escaleras + self.map.escaleras_no_interactua: # Por cada escalera (incluidas las que no baja)
-			i.draw(-5, -7) # Dibuja la entidad
-			# DEBUG: pyxel.pix(i.x, i.y - 7, 3)
+		if not self.end:
+			pyxel.blt(9, 26, 0, 3, 98, 20, 33, 3) #Imagen estática de barriles donde DONKEY KONG cogerá los barriles y los lanzará
+			
+			for i in self.map.escaleras + self.map.escaleras_no_interactua: # Por cada escalera (incluidas las que no baja)
+				i.draw(-5, -7) # Dibuja la entidad
+				# DEBUG: pyxel.pix(i.x, i.y - 7, 3)
 
-		for i in self.map.plataformas: # Por cada entidad en map.plataformas
-			i.draw(correction_x=-7) # Dibuja la entidad
-		
-		for i in self.map.barriles:
-			i.draw(-5, -9)
-			# DEBUG: pyxel.pix(i.x, i.y)
+			for i in self.map.plataformas: # Por cada entidad en map.plataformas
+				i.draw(correction_x=-7) # Dibuja la entidad
+			
+			for i in self.map.barriles:
+				i.draw(-5, -9)
+				# DEBUG: pyxel.pix(i.x, i.y)
 
-		for i in self.map.texts:
-			i.draw()
+			for i in self.map.texts:
+				i.draw()
 
-		self.map.pauline.draw() # Dibuja a Pauline 
+			self.map.pauline.draw() # Dibuja a Pauline 
 
-		self.map.mario.draw(-5, -14) # Dibuja a Mario
-		# DEBUG: pyxel.pix(self.map.mario.getX(), self.map.mario.getY(), 10)
+			self.map.mario.draw(-5, -14) # Dibuja a Mario
+			# DEBUG: pyxel.pix(self.map.mario.getX(), self.map.mario.getY(), 10)
 
-		self.map.donkey.draw() # Dibuja a DONKEY KONG
+			self.map.donkey.draw() # Dibuja a DONKEY KONG
 
-		pyxel.text(10, 10, str(self.map.mario.puntos), 7)
-		
+			# Texto que muestra los puntos pon pantalla
+			# Siempre tiene que ocupar 5 casillas, así que lo que falte
+			# es rellenado con ceros al principio:
+			pyxel.text(10, 5, '0'* (5 - len(str(self.map.mario.puntos))) + str(self.map.mario.puntos), 7)
+			
+			# Mini marios que representan la vida que le queda a Mario
+			x = 10
+			for i in range(self.map.mario.vidas):
+				pyxel.blt(x, 15, 0, 241, 201, 7, 8, 3)
+				x += 10
+			del x # Esta variable ya no hace falta asi que se borra
+		else:
+			# Pinta el texto del final del juego
+			pyxel.text(WIDTH/2-20, HEIGHT/2, 'GAME OVER', 7)
+			pyxel.text(WIDTH/2-40, HEIGHT/2+30, 'PUNTOS CONSEGUIDOS:', 7)
+			# Pinta los puntos, mas o menos centrados en la pantalla
+			pyxel.text(WIDTH/2-3*len(str(self.map.mario.puntos)), HEIGHT/2+40, str(self.map.mario.puntos), 7)
 Game() # Ejecuta el juego
