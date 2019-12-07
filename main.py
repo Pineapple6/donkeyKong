@@ -659,19 +659,20 @@ class Game:
 		
 		for i in self.map.escaleras: # Por cada entidad en map.escaleras
 			i.draw(-5, -7) # Dibuja la entidad
-			pyxel.pix(i.x, i.y - 7, 3)
+			# DEBUG: pyxel.pix(i.x, i.y - 7, 3)
 
 		for i in self.map.plataformas: # Por cada entidad en map.plataformas
 			i.draw(correction_x=-7) # Dibuja la entidad
 		
 		for i in self.map.barriles:
 			i.draw(-5, -9)
+			# DEBUG: pyxel.pix(i.x, i.y)
 
 		for i in self.map.texts:
 			i.draw()
 
 		self.map.mario.draw(-5, -14) # Dibuja a Mario
-		pyxel.pix(self.map.mario.getX(), self.map.mario.getY(), 10)
+		# DEBUG: pyxel.pix(self.map.mario.getX(), self.map.mario.getY(), 10)
 
 		pyxel.text(10, 10, str(self.map.mario.puntos), 7)
 		
