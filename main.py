@@ -294,8 +294,18 @@ class DonkeyKong(Entity):
 	Estático, con sprite cambiante, y su posición es usada
 	como punto de partida para la salida de los barriles (los lanza él)
 	'''
-	pass
-	
+	def init_sprites(self):
+
+		self.sprites = {
+			'static':Sprite((103,7), (145,38), 1, 3),
+			'left':Sprite((52,7), (95,39), 1, 3), 
+			'right':Sprite((201,6), (248,38), 1, 3), 
+			'static_barril':Sprite(33,94, (95,39), 1, 3),
+			'angry1':Sprite((2,53), (50,86), 1, 3),
+			'angry2':Sprite((201,6), (248,38), 1, 3)
+			}
+	def update(self):
+		pass
 
 class Barril(Entity):
 	'''
@@ -306,7 +316,7 @@ class Barril(Entity):
 
 		# Al igual que en Mario, aquí se definen inicialmante varias variables
 		# que sirven para manejar el comportamiento del movimiento del barril.
-		self.heading_right = True # Mira pa la derecha 
+		self.heading_right = True # Mira para la derecha 
 		self.plataforma = False # Toca una plataforma
 		self.cayendo = False # Está cayendo (POR UNA ESCALERA)
 		self.jumped = False
@@ -360,6 +370,16 @@ class Pauline(Entity):
 	Estática, pero de vez en cuando su sprite cambia.
 	'''
 	def init_sprites(self):
+		self.sprites = {
+			'static':Sprite((50,229), (66,252), 0, 3),
+			'moving1':Sprite((26,229), (42,252), 0, 3),
+			'moving2':Sprite((3,229), (16,252), 0, 3),
+			'help':Sprite((1,197), (24,206), 0, 3),
+			'life':Sprite((240,200), (248,209), 0, 3)
+		}
+
+
+	def update(self):
 		pass
 
 class Escalera(Entity):
@@ -443,7 +463,13 @@ class Map():
 		self.escaleras.append(Escalera(curr_plat[0], curr_plat[1]-8))
 		self.escaleras.append(Escalera(curr_plat[0], curr_plat[1]-24))
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1], 9, var_x=-15)
-		self.crea_plataforma(curr_plat[0]+105, curr_plat[1]-31, 3)
+		self.escaleras.append(Escalera(curr_plat[0]+90, curr_plat[1]-8))
+		self.escaleras.append(Escalera(curr_plat[0]+90, curr_plat[1]-24))
+		self.escaleras.append(Escalera(curr_plat[0]+90, curr_plat[1]-40))
+		self.escaleras.append(Escalera(curr_plat[0]+75, curr_plat[1]-8))
+		self.escaleras.append(Escalera(curr_plat[0]+75, curr_plat[1]-24))
+		self.escaleras.append(Escalera(curr_plat[0]+75, curr_plat[1]-40))
+		self.crea_plataforma(curr_plat[0]+102, curr_plat[1]-31, 3)
 
 		del curr_plat # ya no se necesita más esta variable, así que se borra de la memoria. 
 
@@ -623,7 +649,8 @@ class Game:
 		'''
 
 		pyxel.cls(0) # Limpia la pantalla, todo a negro
-
+		pyxel.blt(12, 26, 0, 3, 98, 20, 33, 3) #Imagen estática de barriles donde DONKEY KONG cogerá los barriles y los lanzará
+		
 		for i in self.map.escaleras: # Por cada entidad en map.escaleras
 			i.draw(-5, -7) # Dibuja la entidad
 
