@@ -297,15 +297,35 @@ class DonkeyKong(Entity):
 	def init_sprites(self):
 
 		self.sprites = {
-			'static':Sprite((103,7), (145,38), 1, 3),
-			'left':Sprite((52,7), (95,39), 1, 3), 
-			'right':Sprite((201,6), (248,38), 1, 3), 
-			'static_barril':Sprite(33,94, (95,39), 1, 3),
-			'angry1':Sprite((2,53), (50,86), 1, 3),
-			'angry2':Sprite((201,6), (248,38), 1, 3)
+			'static':Sprite((103, 7), (145, 38), 1, 3),
+			'coge_barril1':Sprite((52, 8), (95, 39), 1, 3), 
+			'coge_barril2':Sprite((33, 96), (74,127), 1, 3),
+			'coge_barril3':Sprite((150, 7), (199,38), 1, 3), 
+			'angry1':Sprite((2, 53), (50, 86), 1, 3),
+			'angry2':Sprite((201,6), (248, 38), 1, 3)
 			}
+		self.setSprite('static')
+		self.turn = 0
+		# Si donkey ya ha lanzado un barril, no vuelve a lanzar más
+		# hasta que vuelva a completar el ciclo de sprites
+		self.barril_lanzado = False
+
 	def update(self):
-		pass
+		if self.turn == 0:
+			self.setSprite('static')
+			if pyxel.frame_count%300 == 0:
+				self.turn = 60
+		else:
+			if self.turn >= 40:
+				num = '1'
+			elif self.turn <= 40 and self.turn >= 20:
+				num = '2'
+			else:
+				num = '3'
+
+			self.setSprite('coge_barril' + num)
+			del num
+			self.turn -= 1
 
 class Barril(Entity):
 	'''
@@ -412,7 +432,7 @@ class Map():
 		'''
 		Inicialización del mapa, se crean todas las entidades que van a convivir en el juego.
 		'''
-
+		self.donkey = DonkeyKong(29, 28)
 		self.mario = Mario( 7, HEIGHT-9, 9.8) # Se crea a Mario
 
 		self.texts = [] # Lista que va a contener todos los textos de puntuación del mapa
@@ -457,8 +477,8 @@ class Map():
 		curr_plat = self.crea_plataforma(curr_plat[0]+15, curr_plat[1]-25, 14, var_y=-1)
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19))
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7))
-		self.escaleras.append(Escalera(curr_plat[0]-120, curr_plat[1]-22))
-		self.escaleras.append(Escalera(curr_plat[0]-120, curr_plat[1]+5))
+		self.escaleras.append(Escalera(curr_plat[0]-102, curr_plat[1]-22))
+		self.escaleras.append(Escalera(curr_plat[0]-102, curr_plat[1]+5))
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1]-25, 5, var_x=-15, var_y=-1)
 		self.escaleras.append(Escalera(curr_plat[0], curr_plat[1]-8))
 		self.escaleras.append(Escalera(curr_plat[0], curr_plat[1]-24))
@@ -521,6 +541,7 @@ class Game:
 		'''
 
 		# ----------- MARIO -------------
+		self.map.donkey.update() # Actualiza a Donkey Kong
 
 		self.map.mario.update() # Actualiza la posición de Mario
 		
@@ -644,9 +665,17 @@ class Game:
 
 		del new # Ya no necesitamos la variable de paso
 
-		# Crea nuevos barriles
-		if ( len(self.map.barriles) < 10 ) and (pyxel.frame_count%180 == 179):
-			self.map.barriles.append(Barril(30, 30, 4.5))
+		# DONKEY KONG LANZA BARRILES
+		if (
+			(self.map.donkey.getSprite() == 'coge_barril3') and
+			(not self.map.donkey.barril_lanzado) and
+			(len(self.map.barriles) < 10 )
+			):
+			self.map.barriles.append(Barril(73, 60, 4.5))
+			self.map.donkey.barril_lanzado = True
+
+		if self.map.donkey.getSprite() == 'coge_barril2':
+			self.map.donkey.barril_lanzado = False
 
 	def draw(self):
 		'''
@@ -673,6 +702,8 @@ class Game:
 
 		self.map.mario.draw(-5, -14) # Dibuja a Mario
 		# DEBUG: pyxel.pix(self.map.mario.getX(), self.map.mario.getY(), 10)
+
+		self.map.donkey.draw()
 
 		pyxel.text(10, 10, str(self.map.mario.puntos), 7)
 		
