@@ -285,7 +285,7 @@ class Mario(Entity):
 				self.setSprite('stairs' + str(turn)) # Actualiza el sprite
 			
 			if pyxel.btn(pyxel.KEY_DOWN):# Si se pulsa la flecha abajo
-				self.changeY(1) # Baja
+				self.changeY(1) # baja
 				self.setSprite('stairs' + str(turn)) # Actualiza el sprite
 
 class DonkeyKong(Entity):
@@ -561,6 +561,12 @@ class Game:
 			): # está en la escalera, así que
 				self.map.mario.setVelY(0) # se para
 				self.map.mario.stair = True # está tocando una escalera
+				if (
+					( int(i.y - 7 - self.map.mario.getY() ) == 1) and 
+					self.map.mario.plataforma and
+					pyxel.btn(pyxel.KEY_DOWN)
+					):
+					self.map.mario.changeY(4) # 4 a la vez para que baje de la plataforma
 
 		# ------------- BARRILES ---------------
 
@@ -653,6 +659,7 @@ class Game:
 		
 		for i in self.map.escaleras: # Por cada entidad en map.escaleras
 			i.draw(-5, -7) # Dibuja la entidad
+			pyxel.pix(i.x, i.y - 7, 3)
 
 		for i in self.map.plataformas: # Por cada entidad en map.plataformas
 			i.draw(correction_x=-7) # Dibuja la entidad
@@ -664,6 +671,7 @@ class Game:
 			i.draw()
 
 		self.map.mario.draw(-5, -14) # Dibuja a Mario
+		pyxel.pix(self.map.mario.getX(), self.map.mario.getY(), 10)
 
 		pyxel.text(10, 10, str(self.map.mario.puntos), 7)
 		
