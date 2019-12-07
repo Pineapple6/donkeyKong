@@ -391,16 +391,31 @@ class Pauline(Entity):
 	'''
 	def init_sprites(self):
 		self.sprites = {
-			'static':Sprite((50,229), (66,252), 0, 3),
+			'static':Sprite((3,229), (16,252), 0,3),
 			'moving1':Sprite((26,229), (42,252), 0, 3),
-			'moving2':Sprite((3,229), (16,252), 0, 3),
-			'help':Sprite((1,197), (24,206), 0, 3),
-			'life':Sprite((240,200), (248,209), 0, 3)
+			'moving2':Sprite((50,229), (66,252), 0, 3),
+			'help':Sprite((1,197), (24,206), 0, 3)
+			#--------------'life':Sprite((240,200), (248,209), 0, 3)--------------
 		}
-
+		self.setSprite('static') #Sprite principal de Pauline
+		self.turn =0 # Pauline mantendrá la misma imagen cuando no pida ayuda
 
 	def update(self):
-		pass
+		if self.turn == 0:
+			self.setSprite('static')
+			if pyxel.frame_count%300 == 299: # Cada 5 sec. Pauline pide ayuda
+				self.turn = 75		
+		else:
+			if (self.turn<=10) or (40<self.turn<=50):
+				self.setSprite('moving1')
+			elif (10<self.turn<=20) or (30<self.turn<=40) or (50<self.turn<=60) or (self.turn>=70):
+				self.setSprite('moving2')
+			elif (20<self.turn<=30) or (60<self.turn<70):
+				self.setSprite('static')
+			
+
+			self.turn-=1
+
 
 class Escalera(Entity):
 	'''
@@ -432,7 +447,8 @@ class Map():
 		'''
 		Inicialización del mapa, se crean todas las entidades que van a convivir en el juego.
 		'''
-		self.donkey = DonkeyKong(29, 28)
+		self.pauline = Pauline(105,5) # Posición de PAULINE
+		self.donkey = DonkeyKong(29, 28) # Posición de DONKEY KONG
 		self.mario = Mario( 7, HEIGHT-9, 9.8) # Se crea a Mario
 
 		self.texts = [] # Lista que va a contener todos los textos de puntuación del mapa
@@ -477,8 +493,8 @@ class Map():
 		curr_plat = self.crea_plataforma(curr_plat[0]+15, curr_plat[1]-25, 14, var_y=-1)
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-19))
 		self.escaleras.append(Escalera(curr_plat[0]-30, curr_plat[1]-7))
-		self.escaleras.append(Escalera(curr_plat[0]-102, curr_plat[1]-22))
-		self.escaleras.append(Escalera(curr_plat[0]-102, curr_plat[1]+5))
+		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]-22))
+		self.escaleras.append(Escalera(curr_plat[0]-105, curr_plat[1]+5))
 		curr_plat = self.crea_plataforma(curr_plat[0]-15, curr_plat[1]-25, 5, var_x=-15, var_y=-1)
 		self.escaleras.append(Escalera(curr_plat[0], curr_plat[1]-8))
 		self.escaleras.append(Escalera(curr_plat[0], curr_plat[1]-24))
@@ -542,7 +558,7 @@ class Game:
 
 		# ----------- MARIO -------------
 		self.map.donkey.update() # Actualiza a Donkey Kong
-
+		self.map.pauline.update() # Actualiza a Pauline
 		self.map.mario.update() # Actualiza la posición de Mario
 		
 		# Mientras no se demuestre lo contrario, de momento
@@ -700,10 +716,12 @@ class Game:
 		for i in self.map.texts:
 			i.draw()
 
+		self.map.pauline.draw() # Dibuja a Pauline 
+
 		self.map.mario.draw(-5, -14) # Dibuja a Mario
 		# DEBUG: pyxel.pix(self.map.mario.getX(), self.map.mario.getY(), 10)
 
-		self.map.donkey.draw()
+		self.map.donkey.draw() # Dibuja a DONKEY KONG
 
 		pyxel.text(10, 10, str(self.map.mario.puntos), 7)
 		
