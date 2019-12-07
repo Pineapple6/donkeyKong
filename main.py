@@ -582,6 +582,7 @@ class Game:
 				(self.map.mario.jumping) and
 				(abs(barril.getX() - self.map.mario.getX()) <= 3) and
 				(barril.getY() - self.map.mario.getY() <= 20) and
+				(barril.getY() - self.map.mario.getY() >= 0) and
 				not barril.jumped
 				):
 				self.map.mario.puntos += 100
@@ -613,8 +614,6 @@ class Game:
 		# Crea nuevos barriles
 		if ( len(self.map.barriles) < 10 ) and (pyxel.frame_count%180 == 179):
 			self.map.barriles.append(Barril(30, 30, 4.5))
-
-		print(len(self.map.texts))
 
 	def draw(self):
 		'''
