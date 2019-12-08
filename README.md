@@ -5,7 +5,15 @@
 ## El objetivo del proyecto es crear el juego de Donkey Kong en Python, usando la librería [**pyxel**](https://pypi.org/project/pyxel/) .
 
 # Estructura base del proyecto
-Dado que va a ser un juego, usar un paradigma orientado a objetos es claramente una muy buena elección. Así que lo primero que se ha hecho es crear una estructura de clases a partir de la cual comenzaremos a desarrollar el videojuego:
+Para agilizar el trabajo en conjunto, hemos decidido crear un repositorio privado en Github con el que podamos manejar las diferentes versiones del desarrollo del proyecto.
+
+* El código del juego está contenido en el archivo `main.py`, que se puede ejecutar usando Python3.
+
+* my_resource.pyxres contiene los bancos de imágenes en los que están contenidos todos los sprites del juego.
+
+* README.pdf (este mismo archivo) Documentación de todo el proyecto.
+
+Dado que va a ser un juego, usar un paradigma orientado a objetos es claramente una muy buena elección. Así que lo primero que se ha hecho es crear una estructura de clases a partir de la cual comenzaremos a desarrollar el videojuego.
 
 ## Configuración inicial
 Justo al principio del script se encuentran ciertas variables globales que especifican aspectos como el tamaño de la pantalla y la tasa de refresco (en fps).
@@ -81,7 +89,7 @@ Cuando la tecla espacio (pyxel.KEY_SPACE) es pulsada, a Mario se le da una veloc
 ### Sprites:
 Mientras Mario se va moviendo, su sprite es cambiante. Para saber qué sprite se usa en cada momento, ha hecho falta establecer una serie de variables que controlen en estado de Mario:
 
-* **Variable jumping**: Su valor es True si mario está saltando, y False si está en el suelo. Permite así cambiar entre el sprite de salto y los de tierra.
+* **Parámetro jumping**: Su valor es True si mario está saltando, y False si está en el suelo. Permite así cambiar entre el sprite de salto y los de tierra.
 
 * **Variable turn**: Si está en el suelo y se está moviendo lateralmente, su sprite va realizando ciclos de tres posiciones distintas. He aquí el algoritmo que controla qué turno del ciclo está pasando en cierto instante:
     * Primero, se recoge el valor de pyxel.frame_count, que devuelve el número del frame que está sucediendo en ese mismo instante.
@@ -91,6 +99,8 @@ Mientras Mario se va moviendo, su sprite es cambiante. Para saber qué sprite se
     * Finalmente se le suma uno, y lo que nos queda es un número que va haciendo ciclos del 1 al 3, cambiando cada 10 fotogramas. Este número es el que más tarde es usado para seleccionar el sprite correspondiente: 'right**1**, right**2**, left**1**, left**2**.. etc.'
 
     > Este proceso se podría simplificar haciendo simplemente módulo 3 del frame_count, pero esto da lugar a un ciclo que cambia cada frame, lo cual yendo a 60 fps o incluso 30 fps es demasiado rápido y antiestético. Con este otro algoritmo, este ciclo cambia de manera 10 veces más lenta.
+
+    > Este algoritmo es usado posteriormente en varias entidades que poseen un ciclo de rotación de sprites. (Como los barriles)
 
 > ## Posición teórica
 > Pese a que mario es para los ojos del jugador un personaje de cierto tamaño, a la hora de establecer sus propiedades físicas su posición queda registrada como un único punto en el mapa (x, y). 
@@ -117,11 +127,21 @@ He aquí una explicación gráfica que seguro que es más aclaratoria:
 
 > Una vez detecta una plataforma en su caída, el protocolo que sigue Mario es idéntico al que sigue cuando detecta el fondo de la pantalla: Su velocidad en el eje Y pasa a ser 0 (se para), su posición en el eje Y se queda justo por encima del "suelo" (en este caso plataforma), y las variables que controlan aspectos como el salto indican que Mario ha llegado a un suelo y que por lo tanto ha dejado de saltar.
 
-# Configuración general del proyecto
-Para agilizar el trabajo en conjunto, hemos decidido crear un repositorio privado en Github con el que podamos manejar las diferentes versiones del desarrollo del proyecto.
+### Escaleras
+Las escaleras, junto a las plataformas, constituyen el escenario básico con el cual Mario interactúa.
 
-* El código del juego está contenido en el archivo `main.py`, que se puede ejecutar usando Python3.
+Al subir Mario a una escalera, varias cosas cambian: Deja de afectarle la gravedad y pasa de poder desplazarse lateralmente a poder hacerlo solo arriba o abajo.
 
-* my_resource.pyxres contiene los bancos de imágenes en los que están contenidos todos los sprites del juego.
+Así que eso es lo que se implementa.
+Se añade dos movimientos más al update de Mario: Moverse arriba (tecla UP) y moverse abajo (tecla DOWN).
 
-* README.pdf (este mismo archivo) Documentación de todo el proyecto.
+Pero todo esto con ciertas condiciones...
+Si Mario está solo tocando una escalera podrá solo moverse hacia arriba o hacia abajo. Si además está tocando una plataforma también puede moverse hacia los lados (para poder salir de la escalera). Si está tocando solamente plataformas, nada cambia. 
+
+Es evidente que para controlar este nuevo abanico de condiciones hacía falta crear nuevos parámetros de Mario:
+
+* **Parámetro stair**: Vale True cuando Mario está tocando una escalera y False cuando no.
+* **Parámetro plataforma**: Vale True cuando Mario toca una pataforma y False cuando no.
+
+De este modo, con varias conficiones if-else, somos capaces de cambiar el comportamiento y el movimiento de Mario en base a su interacción con el escenario básico del juego.
+

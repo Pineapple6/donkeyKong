@@ -267,7 +267,7 @@ class Mario(Entity):
 			# Si se pulsa el espacio y no está saltando...
 			if (pyxel.btn(pyxel.KEY_SPACE)) and (not self.jumping):
 				self.jumping = True # comienza a saltar
-				self.setVelY(-2.5) # le da velocidad a mario pa que salte
+				self.setVelY(-2 - 40/FPS) # le da velocidad a mario pa que salte
 				self.setSprite(self.getSprite()[:-1] + '2') # pasa al sprite de salto, el 2
 
 			# Si no se está moviendo, pasa al sprite 1, el de que está de pie.
@@ -705,7 +705,7 @@ class Game:
 					(abs(barril.getX() - i.x+5) <= 3) and
 					( int(i.y-7 - barril.getY()) == 0)
 					): # está en la escalera, así que
-					if random.randint(1, 4) == 4: # 1/4 de posibilidades de que eso pase, 25%
+					if random.randint(1, 100) <= 6: # 25% de que caiga
 						barril.cayendo = True
 						barril.changeY(4)
 
