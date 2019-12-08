@@ -58,6 +58,11 @@ Al igual que los personajes, son entidades del juego solo que al ser estáticas 
 ## Clase Map
 Representa al tablero del juego como conjunto, conteniendo todas las entidades tanto estáticas como dinámicas del juego
 
+## Clase "points_text"
+Una clase que hemos decidido añadir más adelante durante el desarrollo del juego. Representa a los textos de puntuación que aparecen temporalmente en la pantalla tras saltar Mario sobre un barril.
+
+Posee, además de una posición en x y en y, un contador de frames restantes en los que aparecerá. Cuando el contador llega a cero, el texto desaparece y es borrado más tarde.
+
 # Funcionalidad básica del juego
 ## Movimiento de Mario
 Esta parte del código puede llegar a ser un poco dificil de digerir, luego aquí explicaremos los algoritmos utilizados para hacer que Mario sea controlado por el jugador.
@@ -113,14 +118,10 @@ He aquí una explicación gráfica que seguro que es más aclaratoria:
 > Una vez detecta una plataforma en su caída, el protocolo que sigue Mario es idéntico al que sigue cuando detecta el fondo de la pantalla: Su velocidad en el eje Y pasa a ser 0 (se para), su posición en el eje Y se queda justo por encima del "suelo" (en este caso plataforma), y las variables que controlan aspectos como el salto indican que Mario ha llegado a un suelo y que por lo tanto ha dejado de saltar.
 
 # Configuración general del proyecto
-Para agilizar el trabajo en conjunto, hemos decidido crear un repositorio en Github con el que podamos manejar las diferentes versiones del desarrollo del proyecto. (Repositorio obviamente **privado** y con acceso explícito únicamente a los autores del trabajo, para evitar copias)
+Para agilizar el trabajo en conjunto, hemos decidido crear un repositorio privado en Github con el que podamos manejar las diferentes versiones del desarrollo del proyecto.
 
 * El código del juego está contenido en el archivo `main.py`, que se puede ejecutar usando Python3.
 
-> El script requiere de la instalación de la librería pyxel. Para agilizar el proceso, los recursos requeridos están en el archivo **requirements.txt**, así que para tener todo listo simplemente ejecuta el comando `python -m pip install -r requirements.txt`
+* my_resource.pyxres contiene los bancos de imágenes en los que están contenidos todos los sprites del juego.
 
-* La documentación se encuentra en el archivo `README.md`. Por convenvión (Github), está escrita en formato **Markdown**, pero somos conscientes de que debe ser entregada en formato pdf, así que antes de entregar el trabajo lo convertiremos a tal formato.
-
-* El archivo `.gitignore` especifica al software de gestión de versiones qué archivos debe ignorar. (Archivos como configuraciones del editor de código, no relevantes para el proyecto)
-
-* La carpeta `assets` contiene todos los recursos que necesita el archivo `main.py` para ejecutarse correctamente. Asegúrese de que a la hora de ejecutar el script, éste tiene acceso a sus recursos.
+* README.pdf (este mismo archivo) Documentación de todo el proyecto.

@@ -773,22 +773,16 @@ class Game:
 		# el "Colector de basuras"
 		# Si hay un barril que se ha salido del mapa (ha llegado al final y
 		# se ha ido) lo desecha de la lista de barriles.
-		new = []
-		for i in self.map.barriles:
-			if not ( (i.getX() < 0) and (i.getY() >= 247) ):
-				new.append(i)
-		self.map.barriles = new
+		for i in self.map.barriles: # cada barril
+			if (i.getX() < 0) and (i.getY() >= 247): # Si el barril sale de la pantalla
+				self.map.barriles.remove(i) # es borrado de la lista
 
 		# el mismo "colector de basuras", pero
 		# esta vez para eliminar los textos de puntuación
 		# que ya no aparecen más en pantalla
-		new = []
 		for i in self.map.texts:
-			if not (i.count <= 0):
-				new.append(i)
-		self.map.texts = new
-
-		del new # Ya no necesitamos la variable de paso
+			if i.count <= 0: # Si no no va a aparecer más por pantalla
+				self.map.texts.remove(i) # Desaparece
 
 		# DONKEY KONG LANZA BARRILES
 		if not self.map.pauline.help >0: # Si pauline no está pidiendo ayuda
