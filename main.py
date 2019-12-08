@@ -876,7 +876,7 @@ class Game:
 			# Pinta los puntos, mas o menos centrados en la pantalla
 			pyxel.text(WIDTH/2-3*len(str(self.map.mario.puntos)), HEIGHT/2+10, str(self.map.mario.puntos), 7)
 			pyxel.text(WIDTH-85, HEIGHT-10, 'PRESS "ENTER" TO QUIT', 5)
-			if pyxel.btnp(pyxel.KEY_ENTER):
-				pyxel.quit()
+			if pyxel.btnp(pyxel.KEY_ENTER): # Si se pulsa ENTER
+				pyxel.quit() # Sale de pyxel
 
 Game() # Ejecuta el juego
