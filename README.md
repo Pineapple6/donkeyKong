@@ -197,3 +197,40 @@ Tras esto, solo hace falta hacer que varíe de dirección. Esto lo hace cada vez
 * **Parámetro heading_right**: Devuelve un booleano dependiendo de si el barril tiene que avanzar hacia la derecha o no (a la izquierda)
 
 * **Parámetro cayendo**: Si está cayendo por una escalera, este parámetro vale True. (sirve para cambiar tanto de sprite como de dirección)
+
+Una vez el barril como individual actúa de manera correcta, es hora de añadir "barriles" como colectivo.
+Al igual que la lista de plataformas y las listas de escaleras, los barriles se añaden a una lista de barriles definida en el mapa. De este modo, actualizar todos los barriles se convierte en básicamente iterar cada ítem de la lista como conjunto.
+
+La aparición de los barriles se controla mediante los sprites de Donkey Kong, por lo que se aclara más tarde en su apartado.
+
+# Sprint 4
+Una vez listo todo, es hora de crear el juego en sí.
+
+Esto se consigue añadiendo también la detección de barriles y de Donkey Kong por parte de Mario. Si alguno de los dos le tocan, mario muere. Si en vez de tocar un barril pasa por encima (la detección es igual en el eje x, pero desviada hacia arriba en el eje y), obtiene 100 puntos (se crea un objeto de la clase Points_text).
+
+### Vidas y puntos
+Pese a que es cosa de un sprint anterior, es ahora cuando creamos las 3 vidas y el contador de puntos de Mario. Las dos son parámetros de la clase Mario.
+
+Los puntos son mostrados continuamente en la parte superior de la pantalla, y debajo de ellos, se dibujan tantos "mini marios" como vidas le queden a Mario (con un bucle for, separados entre sí)
+
+### Últimos elementos del mapa
+Pese a que, tal y como ya hemos dicho, esto es tarea del primer sprint (según el plan proporcionado por el profesor), hemos acabado añadiendo a pauline y a Donkey Kong en el último sprint (ya que al fin y al cabo no tienen físicas, solo cambian sus sprints.)
+
+Se programa a Donkey Kong para que cada cierto tiempo rote de sprints formando el movimiento de coger y lanzar un barril. Al pasar al último sprint (el de lanzar el barril) éste es detectado por el juego, que crea un nuevo barril en la posición de las manos de Donkey Kong (siempre y cuando el número de barriles en juego no supere el límite). El intervalo de cambio de sprints de Donkey Kong, controlado por su parámetro interno **turn**, establece cuando se crean nuevos barriles.
+
+Pauline se crea también. Al igual que Donkey Kong, tiene un parámetro **turn** que controla la duración y el estado de su sprite. Cada cierto tiempo, Pauline cambia repetidamente de sprites en lo que parece un "baile", y justo tras esto pide ayuda (apareciendo a su lado el sprite del texto "Help"). Simultáneamente, donkey kong golpea su pecho alternando otros dos sprites que tiene explícitamente para realizar ese movimiento.
+
+## El juego final
+Cada vez que Mario toca un barril o a Donkey, pierde una vida, y Muere.
+
+### Muerte de Mario
+* **Parámetro died**: Cuando Mario muere se vuelve True.
+
+Al ser el parámetro died de Mario igual a True, el juego pasa a transcurrir de manera distinta durante un intervalo de tiempo.
+En vez de actualizar todas las entidades dinámicas tal y como lo hace normalmente, todas las entidades como barriles y textos de puntuación son borrados del mapa.
+Ni Donkey ni Pauline se actualizan.
+<br>Mario, mientras tanto, pasa a un ciclo de sprites de muerte, en el que da un par de vueltas y cae al suelo rendido. Tras esto, acaba la animación y el periodo de muerte, voiviendo a ser mario.died igual a False y pudiendo ocurrir dos cosas:
+
+Si quedan más vidas (al morir se le resta uno al parámetro de vidas de Mario), Mario vuelve a su posición inicial y todo vuelve a la normalidad, transcurriendo el juego tal y como siempre.
+
+Si, en cambio, ya no hay mas vidas, la pantalla pasa a ser negro, mostrando el texto "Game over" junto a los puntos conseguidos. Fin del juego.
