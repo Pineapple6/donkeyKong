@@ -234,3 +234,14 @@ Ni Donkey ni Pauline se actualizan.
 Si quedan más vidas (al morir se le resta uno al parámetro de vidas de Mario), Mario vuelve a su posición inicial y todo vuelve a la normalidad, transcurriendo el juego tal y como siempre.
 
 Si, en cambio, ya no hay mas vidas, la pantalla pasa a ser negro, mostrando el texto "Game over" junto a los puntos conseguidos. Fin del juego.
+
+# Conclusiones finales
+El enfoque del proyecto ha sido bastante interesante. Decidimos comenzar probando las físicas e interacciones de manera individual (Mario con *una* plataforma, mario con *una* escalera) y más tarde juntando todo en un mapa, lo cual aparte de un par de errores ha salido bastante bien.
+
+Errores, como en cualquier tipo de software, siempre hay. Aún existe algún que otro bug de físicas que seguimos intendando solucionar sin muchas esperanzas aparte encontrar por casualidad el problema al tratar de programar algo distinto.
+
+Admitimos que el sistema de físicas y detección puede haber sido demasiado complejo. Y complejo no siempre significa mejor. Seguro que muchos de los errores que han aparecido durante el desarrollo del proyecto no habrían surgido si nos humbiésemos centrado en un movimiento más simple y menos "posiciones teóricas" y "gravedad"... Pero también hay que admitir que lo que resulta siguiendo este camino es un movimiento bastante fluido y atractivo en el salto y los choques con plataformas.
+
+Por otra parte, la documentación del proyecto no tiene nada en especial aparte de intentar explicar lo mejor posible las entrañas del código que, tras la implementación de las últimas características del juego, no está lo mejor optimizado posible.
+
+Pero al fin y al cabo, lo hecho hecho está y este es el resultado.
