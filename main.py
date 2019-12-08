@@ -603,7 +603,7 @@ class Game:
 		self.die_temp = 0 # Controla cuanto dura la secuencia de muerte
 		self.end = False # El juego ha terminado
 		pyxel.init(WIDTH, HEIGHT, caption='Donkey Kong', fps=FPS) # Inicializa pyxel
-		pyxel.load('assets/my_resource.pyxres') # Carga el banco de imagenes
+		pyxel.load('my_resource.pyxres') # Carga el banco de imagenes
 		pyxel.run(self.update, self.draw) # Ejecuta pyxel con las funciones update y draw definidas en esta misma clase
 		
 	def update(self):
