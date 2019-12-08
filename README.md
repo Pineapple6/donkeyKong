@@ -161,9 +161,39 @@ Por ejemplo, a ese condicional se le añadiría que Mario *No estuviese saltando
 # Sprint 3
 ## Barriles
 Una vez listo el movimiento de Mario con el entorno, los barriles son el centro de atención.
-Se establece una gravedad menor para los barriles (que bajen mas ligeros) y unas físicas básicas:
 
-* Cae al igual que Mario, aunque con una gravedad menor. 
+Un barril:
+
+* Cae al igual que Mario, aunque con una gravedad menor.
 * Detecta plataformas y se posa sobre ellas, al igual que Mario.
 * Aunque el movimiento del barril no es controlado por el jugador. Comienza yendo hacia la derecha y al bajar de plataforma ya sea por las escaleras o por el borde de éstas su dirección cambia de sentido.
 
+### Plataformas
+La detección de plataformas funciona en los barriles de manera no muy distinta a como funciona con Mario, no hace falta ninguna aclaración en este apartado.
+
+### Escaleras
+De una manera parecida a Mario, el barril es capaz de detectar la escalera; Con la única diferencia de que el barril solo necesita detectar el *inicio* de una escalera (Arriba del todo).
+
+Tras detectar el inicio de una escalera, entra en juego la probabilidad:
+El barril debe tener 1/4 de probabilidades de caer por una escalera. Una fácil implementación debería ser importar la librería random para hacer que haya 1/4 de posibilidades de bajar: `random.randint(1, 4) == 4 # Esto devolvería True solo un cuarto de las veces`.
+<br> Pero hay algo que no tuvimos en cuenta al principio. Un barril tarda **varios frames** en pasar por el inicio de una escalera. (una media de 5 frames, tal y como comprobamos haciendo que imprimiese por pantalla texto cada vez que detectaba una escalera).<br>
+Esto significa que haría la comprobación estadística 5 veces seguidas, dando lugar a una probabilidad errónea (mucha más probabilidad de caer por la escalera de la que debería).
+
+Para comprender esto, es necesario ver la situación al contrario: Si cada vez que hace la comprobación tiene un 3/4 de probabilidades de seguir sin bajar, haciendo la comprobación 5 veces esa probabilidad baja reásticamente: (3/4)^5 = 0.24% de probabilidad de seguir, luego tiene más del 70% de probabilidad de caer por la escalera.
+
+Para arreglar esto, hay que usar un caso cuya probabilidad elevado a la quinta de un 75%, y usar su contrario para hacer que baje la escalera (haciendo así que de verdad tenga un 25% de probabilidad de caer por la escalera, 1/4)
+La raíz quinta de 0.75 es 0.94, un 94/100. Su contrario es 6/100, luego la implementación correcta con la librería random es `random.randint(1, 100) <= 6`. Dentro de un if con esa condición es donde se le da la orden al barril para que baje, haciendo que solo baje alrededor de 1/4 de las veces.
+
+Una vez solucionado el problema de probabilidad hacer que baje el barril es sencillo. Simplemente se le mueve hacia abajo un par de píxeles de golpe. Esto hace que salga del rango de tolerancia de la plataforma y el resto se hace solo: El barril cae por la escalera gracias a la gravedad, y una vez llega abajo continúa su camino.
+> Al igual que Mario, el barril tiene un rango de tolerancia a la hora de detectar la altura de la plataforma. Si no bajase varios píxeles de golpe, seguiría detectando la plataforma y se quedaría sobre ella sin bajar.
+
+### Dirección y sprites
+Tras hacer todo lo anterior, solo falta animar el sprite del barril.
+
+El ciclo de sprites usa el famoso algoritmo que usa también Mario a la hora de elegir qué sprite usar: `int(pyxel.frame_count%40/10) + 1` devuelve un numero del 1 al 4, cuando cambia por los sprites en los que rueda lateralmente. Cuando cae, en cambio, oscila entre dos sprites de caída, pero el algoritmo básicamente es el mismo: `int(pyxel.frame_count%20/10) + 1`.
+
+Tras esto, solo hace falta hacer que varíe de dirección. Esto lo hace cada vez que toca el borde lateral de la pantalla (se cae por el lado de la plataforma) o cada vez que toca una plataforma tras caer por una escalera. Siempre que baja un nivel cambia de sentido de derecha a izquierda o viceversa.
+
+* **Parámetro heading_right**: Devuelve un booleano dependiendo de si el barril tiene que avanzar hacia la derecha o no (a la izquierda)
+
+* **Parámetro cayendo**: Si está cayendo por una escalera, este parámetro vale True. (sirve para cambiar tanto de sprite como de dirección)
