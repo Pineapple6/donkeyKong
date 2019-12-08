@@ -9,7 +9,8 @@ FPS = 60
 
 def abs(num):
 	'''
-	Función valor absoluto
+	Función valor absoluto:
+	Devuelve el valor absoluto del valor recibido
 	'''
 	if num >= 0:
 		return num
@@ -51,10 +52,11 @@ class Entity:
 		una posición en el mapa (x, y) junto a una velocidad en el eje y y una gravedad para
 		que pueda caer
 		'''
+		# coordenadas de la posición
 		self.x = x
 		self.y = y
-		self.vel_y = 0
-		self.gravity = gravity
+		self.vel_y = 0 # velocidad en y (salto y caida)
+		self.gravity = gravity # gravedad
 		self.init_sprites()
 		# init_sprites() se define en las clases hijas de Entity, y especifica
 		# los sprites que va a usar el objeto en cuestión.
@@ -138,8 +140,7 @@ class Entity:
 		self.sprite_name = sprite # Actualiza la variable sprite_name
 		self.sprite = self.sprites[sprite] # Selecciona el sprite del diccionario y lo actualiza
 
-	# ... CHANGERS?
-	# TODO: Creo que estos métodos son un poco innecesarios, pudiendo
+	# TODO: Creo que estos métodos de a continuación son un poco innecesarios, pudiendo
 	# hacer Entity.set(Entity.get() + variación)
 	# Si no se usa demasiado yo creo que vendría bien quitarlos y cambiar sus llamadas
 	# en el código. (Total, para un par de veces que se usan)
@@ -178,15 +179,16 @@ class Points_text:
 		restantes en textos temporales (como el que aparece cuando mario
 		consigue puntos) 
 		'''
+		# coordenadas
 		self.x = x
 		self.y = y
-		self.value = value
-		self.count = count
+		self.value = value # String de texto que muestra por pantalla
+		self.count = count # Número de frames que se va a mostrar antes de desaparecer
 	
 	def draw(self):
-		if self.count > 0:
-			pyxel.text(self.x, self.y, self.value, 7)
-			self.count -= 1
+		if self.count > 0: # si todavia quedan frames
+			pyxel.text(self.x, self.y, self.value, 7) # se muestra
+			self.count -= 1 # resta un frame
 
 class Mario(Entity):
 	'''
@@ -197,7 +199,7 @@ class Mario(Entity):
 	'''
 	def init_sprites(self):
 		'''
-		Inicia los sprites de Mario
+		Inicia los sprites de Mario junto a ciertas variables internas
 		'''
 
 		# Estas variables controlan el estado de mario. Dependiendo de estas variables
@@ -207,9 +209,9 @@ class Mario(Entity):
 		self.jumping = False # Salto
 		self.stair = False # escalera
 		self.plataforma = False # plataforma
-		self.vidas = 3
-		self.puntos = 0
-		self.died = False
+		self.vidas = 3 # vidas de mario
+		self.puntos = 0 # puntos conseguidos
+		self.died = False # variable que controla cuando mario está muriendose (animación)
 
 		# Sprites de Mario
 		self.sprites = {
@@ -229,6 +231,10 @@ class Mario(Entity):
 		self.setSprite('right1') # Sprite inicial de Mario. De pie, mirando a la derecha.
 
 	def update(self):
+		'''
+		Actualiza la posición de Mario en base a sus propiedades físicas, y al input
+		recibido por el teclado (controles del jugador)
+		'''
 
 		# Si no está tocando una escalera o la está tocando pero está sobre una plataforma...
 		if not self.stair or (self.stair and self.plataforma):
@@ -296,11 +302,10 @@ class Mario(Entity):
 	def die(self):
 		'''
 		Mario sufre el impacto de un barril. Pierde una vida, y se inicia la secuencia de 
-		muerte de mario.
-		Si no tiene mas vidas, se acaba el juego. 
+		muerte de mario. 
 		'''
-		self.vidas -= 1
-		self.died = True
+		self.vidas -= 1 # le quita una vida a Mario
+		self.died = True # Mario está muriendose
 
 class DonkeyKong(Entity):
 	'''
@@ -309,7 +314,17 @@ class DonkeyKong(Entity):
 	como punto de partida para la salida de los barriles (los lanza él)
 	'''
 	def init_sprites(self):
+		'''
+		Inicialización de los sprites junto a variables internas 
+		'''
 
+		# Variables que al ser unicaas para donkey se definen en esta función dentro de su scope
+		self.turn = 0 # Controla los frames de la animación de lanzar un barril
+		# Si donkey ya ha lanzado un barril, no vuelve a lanzar más
+		# hasta que vuelva a completar el ciclo de sprites
+		self.barril_lanzado = False
+
+		# Sprites de donkey kong
 		self.sprites = {
 			'static':Sprite((103, 7), (145, 38), 1, 3),
 			'coge_barril1':Sprite((52, 8), (95, 39), 1, 3), 
@@ -318,28 +333,24 @@ class DonkeyKong(Entity):
 			'angry1':Sprite((2, 53), (50, 86), 1, 3),
 			'angry2':Sprite((201,6), (248, 38), 1, 3)
 			}
-		self.setSprite('static')
-		self.turn = 0
-		# Si donkey ya ha lanzado un barril, no vuelve a lanzar más
-		# hasta que vuelva a completar el ciclo de sprites
-		self.barril_lanzado = False
+		self.setSprite('static') # Empieza con el 'normal' (quieto, de frente)
 
 	def update(self):
-		if self.turn == 0:
-			self.setSprite('static')
-			if pyxel.frame_count%150 == 0:
-				self.turn = 60
+		if self.turn == 0: # Si ya no hay mas frames de la animación
+			self.setSprite('static') # Se queda normal
+			if pyxel.frame_count%150 == 0: # Cada cierto tiempo
+				self.turn = 60 # Vuelve a hacer la animación
 		else:
-				
-			if self.turn >= 40:
-				num = '1'
-			elif self.turn <= 40 and self.turn >= 20:
-				num = '2'
-			else:
-				num = '3'
-			self.setSprite('coge_barril' + num)
-			del num
-			self.turn -= 1
+			# ANIMACIÓN DE LANZAR BARRIL
+			if self.turn >= 40: # Primeros 20 frames
+				num = '1' # primer sprite
+			elif self.turn <= 40 and self.turn >= 20: # Otros 20 frames
+				num = '2' # Segundo sprite
+			else: # Ultimos frames
+				num = '3' # untimo sprite, el de que lanza un barril
+			self.setSprite('coge_barril' + num) # Cambia al sprtie correspondiente
+			del num # no necesitamos mas la variable num
+			self.turn -= 1 # Pasa un frame del turno
 		
 class Barril(Entity):
 	'''
@@ -347,13 +358,16 @@ class Barril(Entity):
 	Con propiedades físicas y sprite cambiante, pero no pueden ser controlados por el jugador.
 	'''
 	def init_sprites(self):
+		'''
+		Inicia sus sprites y ciertas variables de uso interno
+		'''
 
 		# Al igual que en Mario, aquí se definen inicialmante varias variables
 		# que sirven para manejar el comportamiento del movimiento del barril.
 		self.heading_right = True # Mira para la derecha 
 		self.plataforma = False # Toca una plataforma
 		self.cayendo = False # Está cayendo (POR UNA ESCALERA)
-		self.jumped = False
+		self.jumped = False # Ha sido saltado por Mario
 
 		self.sprites = {
 			'rolling1':Sprite((59, 118), (71, 128), 0, 3),
@@ -366,6 +380,10 @@ class Barril(Entity):
 		self.setSprite('rolling1') # Sprite inicial
 	
 	def update(self):
+		'''
+		Actualiza la posición del barril
+		'''
+
 		# QUE NO SALGA POR LOS BORDES LATERALES DE LA PANTALLA (Menos en la zona de inicio)
 		if self.getX() > WIDTH: # Si se sale por la derecha
 			self.setX(WIDTH) # Se queda ahi, no sobrepasa el borde
@@ -382,19 +400,22 @@ class Barril(Entity):
 		else:
 			self.changeY(self.getVelY()) # si no, sigue saltando o cayendo
 
-		if not self.cayendo:
-			nums = ['1', '2', '3', '4']
+		# SPRITES Y AVANCE LATERAL
+		if not self.cayendo: # Si no está cayendo
+			# Alterna entre 4 sprites, cambiando de sprite cada 10 frames (mismo algoritmo de siempre)
+			nums = ['1', '2', '3', '4'] 
 			turn = int(pyxel.frame_count%40/10)
 			
-			if self.heading_right:
-				turn = nums[turn]
-				self.changeX(1)
-			else:
-				turn = nums[::-1][turn]
-				self.changeX(-1)
+			if self.heading_right: # si gira hacia la derecha
+				turn = nums[turn] # Usa la lista sin cambiar
+				self.changeX(1) # avanza a la derecha
+			else: # si va hacia la izquierda
+				turn = nums[::-1][turn] # Usa la lista, pero inversa (gira al revés)
+				self.changeX(-1) # avanza hacia la derecha
 
-			self.setSprite('rolling' + str(turn))
-		else:
+			self.setSprite('rolling' + str(turn)) # Cambia el sprite al que toque
+		else: # Si está cayendo
+			# Alterna entre 2 sprites de caída:
 			turn = int(pyxel.frame_count%20/10) + 1
 			self.setSprite('falling' + str(turn))
 
@@ -404,38 +425,56 @@ class Pauline(Entity):
 	Estática, pero de vez en cuando su sprite cambia.
 	'''
 	def init_sprites(self):
+		'''
+		Inicialización de los sprites de pauline junto a otras
+		variables internas
+		'''
+		# al igual que el turn de donkey kong, esta variable turn controla la duración
+		# y las etapas del movimiento de pauline
+		self.turn = 0
+		self.help = 0 # Está pidiendo ayuda
+		self.dancing = False # Pauline está haciendo el baile de auxilio
+		self.rescatada = False # Mario está con pauline
+
+		# Sprites de Pauline
 		self.sprites = {
 			'static':Sprite((3,229), (16,252), 0,3),
 			'moving1':Sprite((26,229), (42,252), 0, 3),
 			'moving2':Sprite((50,229), (66,252), 0, 3)
 		}
 		self.setSprite('static') #Sprite principal de Pauline
-		self.turn = 0 # Pauline mantendrá la misma imagen cuando no pida ayuda
-		# Pauline está haciendo el baile de auxilio
-		self.help = 0
-		self.dancing = False
-		self.rescatada = False
 
 	def update(self):
-		if not self.rescatada:
-			if self.turn == 0:
+		'''
+		Actualiza el sprite de pauline
+		'''
+
+		if not self.rescatada: # Si Mario no está con ella
+			if self.turn == 0: # Si no está moviendose
 
 				if self.dancing:
-					self.dancing = False
+					# Deja de moverse si lo estaba haciendo,
+					# y pide socorro.
+					self.dancing = False 
 					self.help = 60
 
-				self.setSprite('static')
-				if pyxel.frame_count%300 == 299: # Cada 5 sec. Pauline baila
-					self.turn = 75	
-			else:
-				self.dancing = True
+				self.setSprite('static') # cambia al sprite normal
+
+				if pyxel.frame_count%300 == 299: # Cada 5 sec.
+					self.turn = 75 # Pauline comienza a moverse, a bailar.
+			else: # si está bailando
+				self.dancing = True # Está bailando.
+
+				# Alterna entre sus tres sprites de baile dependiendo de
+				# La fase en la que esté
 				if (self.turn<=10) or (40<self.turn<=50):
 					self.setSprite('moving1')
 				elif (10<self.turn<=20) or (30<self.turn<=40) or (50<self.turn<=60) or (self.turn>=70):
 					self.setSprite('moving2')
 				elif (20<self.turn<=30) or (60<self.turn<70):
 					self.setSprite('static')
-				self.turn-=1
+				
+				self.turn -= 1 # Quita un frame
 
 
 class Escalera(Entity):
@@ -585,22 +624,24 @@ class Game:
 			# Desaparecen ciertas entidades como los barriles y el texto de nuevos puntos
 			self.map.barriles = []
 			self.map.texts = []
-			if not self.die_temp == 0:
+			if not self.die_temp == 0: # Hasta que ya no se muera mario
+				# Alterna entre sus sprites de muerte dependiendo de la fase en la que esté
 				if self.die_temp >= 250:
 					self.map.mario.setSprite('die1')
 				elif self.die_temp <= 160:
 					self.map.mario.setSprite('die4')
 				else:
-					turn = int(pyxel.frame_count%30/10) + 1
+					turn = int(pyxel.frame_count%30/10) + 1 # La variable turn funciona con el mismo algoritmo 
 					self.map.mario.setSprite('die' + str(turn))
-				self.die_temp -= 1
+				self.die_temp -= 1 # Quita un frame del turno
 			else:
-				if self.map.mario.vidas == 0:
+				if self.map.mario.vidas == 0: # Si ya no le quedan mas vidas a Mario
 					self.end = True # Se acaba el juego
-				self.map.mario.died = False
-				self.map.mario.setX(7)
+				self.map.mario.died = False # Deja de morirse
+				# Vuelve a la posición de inicio
+				self.map.mario.setX(7) 
 				self.map.mario.setY(HEIGHT-9)
-				self.map.mario.setSprite('right1')
+				self.map.mario.setSprite('right1') # Vuelve al sprite inicial
 
 		# Mientras no se demuestre lo contrario, de momento, Mario no está tocando ni escaleras ni plataformas.
 		self.map.mario.stair = False
@@ -650,6 +691,8 @@ class Game:
 		for barril in self.map.barriles: # Repite esto con cada barril
 			barril.update() # Actualiza la posición del barril
 
+			# Cuando mario termina de saltar, todos los barriles se "resetean"
+			# para que puedan volver a ser saltados por Mario.
 			if barril_reset:
 				barril.jumped = False
 
@@ -748,24 +791,31 @@ class Game:
 		del new # Ya no necesitamos la variable de paso
 
 		# DONKEY KONG LANZA BARRILES
-		if not self.map.pauline.help >0:
+		if not self.map.pauline.help >0: # Si pauline no está pidiendo ayuda
 			if (
+				# Si donkey está en la posición de lanzar un barril
 				(self.map.donkey.getSprite() == 'coge_barril3') and
+				# Y todavía no ha lanzado nunguno (para que no lance varios de golpe 
 				(not self.map.donkey.barril_lanzado) and
+				# Y el número de barriles no llega al máximo (10)
 				(len(self.map.barriles) < 10 )
 				):
-				self.map.barriles.append(Barril(73, 60, 4.5))
-				self.map.donkey.barril_lanzado = True
+				self.map.barriles.append(Barril(73, 60, 4.5)) # Crea un nuevo barril en las manos de donkey kong
+				self.map.donkey.barril_lanzado = True # Ya ha lanzado un barril
 
-			if self.map.donkey.getSprite() == 'coge_barril2':
-				self.map.donkey.barril_lanzado = False
-		else:
+			if self.map.donkey.getSprite() == 'coge_barril2': # Si ha hecho un ciclo completo de sprites
+				self.map.donkey.barril_lanzado = False # vuelve a ser capaz de lanzar un nuevo barril
+		else: # Si pauline está pidiendo ayuda
 
+			# Alterna entre sprites de eso que hacen los monos de UUU UUU UUU UUU que mueven los 
+			# brazos y se los golpean contra el pecho
+			# Dependiendo de en que frame esté help
 			if self.map.pauline.help<=30:
 				self.map.donkey.setSprite('angry1')
 			elif self.map.pauline.help>30:
 				self.map.donkey.setSprite('angry2')
-			self.map.pauline.help -=1
+			
+			self.map.pauline.help -=1 # Quita un frame de help de pauline
 
 	def draw(self):
 		'''
@@ -774,7 +824,7 @@ class Game:
 		'''
 
 		pyxel.cls(0) # Limpia la pantalla, todo a negro
-		if not self.end:
+		if not self.end: # si el juego no ha acabado dibuja todo normalmente
 			pyxel.blt(9, 26, 0, 3, 98, 20, 33, 3) #Imagen estática de barriles donde DONKEY KONG cogerá los barriles y los lanzará
 			
 			for i in self.map.escaleras + self.map.escaleras_no_interactua: # Por cada escalera (incluidas las que no baja)
@@ -785,25 +835,25 @@ class Game:
 				i.draw(correction_x=-7) # Dibuja la entidad
 			
 			for i in self.map.barriles:
-				i.draw(-5, -9)
+				i.draw(-5, -9) # Dibuja cada barril
 				# DEBUG: pyxel.pix(i.x, i.y)
 
 			for i in self.map.texts:
-				i.draw()
+				i.draw() # Dibuja cada texto
 
-			self.map.pauline.draw() # Dibuja a Pauline 
-			if self.map.pauline.help > 0:
-				pyxel.blt(120, 5, 0, 1, 197, 23, 9, 3)
-				self.map.pauline.help -= 1
+			self.map.pauline.draw() # Dibuja a Pauline, 
+			if self.map.pauline.help > 0: # y si está pidiendo ayuda
+				pyxel.blt(120, 5, 0, 1, 197, 23, 9, 3) # pinta también el sprite de 'help'
+				self.map.pauline.help -= 1 # Quita un frame de help
 
 
 			self.map.donkey.draw() # Dibuja a DONKEY KONG
 
-			if (self.map.mario.getY() <= 27 and self.map.mario.plataforma):
+			if (self.map.mario.getY() <= 27 and self.map.mario.plataforma): # si mario está en la plataforma de pauline
 				pyxel.blt(120, 10, 0, 98, 195, 16, 14, 3) # Pinta el corazon
-				self.map.pauline.rescatada = True
+				self.map.pauline.rescatada = True # pauline esta siendo 'rescatada'
 			else:
-				self.map.pauline.rescatada = False
+				self.map.pauline.rescatada = False # si no, deja de ser 'rescatada'
 			
 			self.map.mario.draw(-5, -14) # Dibuja a Mario
 			# DEBUG: pyxel.pix(self.map.mario.getX(), self.map.mario.getY(), 10)
@@ -819,7 +869,7 @@ class Game:
 				pyxel.blt(x, 15, 0, 241, 201, 7, 8, 3)
 				x += 10
 			del x # Esta variable ya no hace falta asi que se borra
-		else:
+		else: # Si el juego ha terminado
 			# Pinta el texto del final del juego
 			pyxel.text(WIDTH/2-20, HEIGHT/2-30, 'GAME OVER', pyxel.frame_count % 15)
 			pyxel.text(WIDTH/2-40, HEIGHT/2, 'PUNTOS CONSEGUIDOS:', 7)
