@@ -21,6 +21,8 @@ Estas variables facilitan la modificación de estos aspectos de una manera rápi
 
 > Se tenía pensado hacer una clase Config que contuviera estas configuraciones, pero dado que de momento son solo tres variables y no se van a crear múltiples instancias de la configuración, se ha visto innecesario.
 
+# Sprint 1
+
 ## Clase Game
 Esta clase es la que representa al propio juego de pyxel. Al iniciarse, crea la ventana en la que dicho juego va a suceder.
 Repetidamente se actualiza y dibuja los diferentes sprites por pantalla a medida que su posición y características cambian.
@@ -71,7 +73,7 @@ Una clase que hemos decidido añadir más adelante durante el desarrollo del jue
 
 Posee, además de una posición en x y en y, un contador de frames restantes en los que aparecerá. Cuando el contador llega a cero, el texto desaparece y es borrado más tarde.
 
-# Funcionalidad básica del juego
+# Sprint 2
 ## Movimiento de Mario
 Esta parte del código puede llegar a ser un poco dificil de digerir, luego aquí explicaremos los algoritmos utilizados para hacer que Mario sea controlado por el jugador.
 
@@ -106,7 +108,7 @@ Mientras Mario se va moviendo, su sprite es cambiante. Para saber qué sprite se
 > Pese a que mario es para los ojos del jugador un personaje de cierto tamaño, a la hora de establecer sus propiedades físicas su posición queda registrada como un único punto en el mapa (x, y). 
 Pues bien, pese a que no se ve, ese punto está localizado (para facilitar cosas como la deección del suelo) en los PIES de mario. Esto será de gran utilidad en el siguiente apartado, en la interacción con las plataformas.
 
-## Interacción de Mario con el entorno
+## Interacción de Mario con el entorno básico (plataformas y escaleras)
 
 ### Plataformas
 Las plataformas son un elemento de pantalla que actúan como *suelo* para nuestro personaje. Y al igual que no se cae del fondo de la pantalla de juego, tampoco puede atravesar una plataforma al caer.
@@ -144,4 +146,24 @@ Es evidente que para controlar este nuevo abanico de condiciones hacía falta cr
 * **Parámetro plataforma**: Vale True cuando Mario toca una pataforma y False cuando no.
 
 De este modo, con varias conficiones if-else, somos capaces de cambiar el comportamiento y el movimiento de Mario en base a su interacción con el escenario básico del juego.
+
+La detección de la escalera por parte de Mario sigue el siguiente concepto:
+
+![](assets/documentacion_mario_escalera.png)
+
+Como se puede ver, la forma de detectarla no dista mucho de la plataforma. Pasará igual con la detección del barril.
+
+Además de esto, se han ido añadiendo más condiciones a la detección con el fin de optimizarla y solucionar errores que iban surgiendo.
+Por ejemplo, a ese condicional se le añadiría que Mario *No estuviese saltando*, para que así no pueda subir a la escalera mientras salta.
+
+> Tras haber optimizado las físicas de Mario y los elementos básicos del juego, hicimos el mapa del nivel. Al probar a Mario en el mapa ya completado, surgieron varios errores que tuvimos que mitigar antes de seguir con el desarrollo.
+
+# Sprint 3
+## Barriles
+Una vez listo el movimiento de Mario con el entorno, los barriles son el centro de atención.
+Se establece una gravedad menor para los barriles (que bajen mas ligeros) y unas físicas básicas:
+
+* Cae al igual que Mario, aunque con una gravedad menor. 
+* Detecta plataformas y se posa sobre ellas, al igual que Mario.
+* Aunque el movimiento del barril no es controlado por el jugador. Comienza yendo hacia la derecha y al bajar de plataforma ya sea por las escaleras o por el borde de éstas su dirección cambia de sentido.
 
