@@ -124,7 +124,7 @@ Del mismo modo pero en el eje x, podemos detectar cuando Mario está justo encim
 
 He aquí una explicación gráfica que seguro que es más aclaratoria:
 
-![](assets/documentacion_mario_plataforma.png)
+<img src="assets/documentacion_mario_plataforma.png" style="height:250px;width:350px;">
 
 > **TOLERANCIA**: Dado que a veces la altura de plataformas contiguas entre sí dista un pixel de distancia, se establece una tolerancia de 2 píxeles en el eje y para que mario pueda caminar sobre ellas detectándolas sin ningún problema.
 
@@ -150,7 +150,7 @@ De este modo, con varias conficiones if-else, somos capaces de cambiar el compor
 
 La detección de la escalera por parte de Mario sigue el siguiente concepto:
 
-![](assets/documentacion_mario_escalera.png)
+<img src="assets/documentacion_mario_escalera.png" style="height:250px;width:350px;">
 
 Como se puede ver, la forma de detectarla no dista mucho de la plataforma. Pasará igual con la detección del barril.
 
