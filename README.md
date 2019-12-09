@@ -61,10 +61,10 @@ Así que eso es exactamente lo que representa la clase Sprite. Se compone de:
 ## Clases de personajes
 Las clases Donkey Kong, Pauline y Mario son entidades que representan a personajes del juego.
 
-No hay necesidad de aclarar ningun aspecto de éstos (salvo de Mario, más adelante), dado que todo lo heredan de la clase Entity. (salvo su conjunto de sprites, lo cual ya se explica en una aclaración anteriormente)
+No hay necesidad de aclarar ningun aspecto de éstos (salvo de Mario, más adelante), dado que todo lo heredan de la clase Entity. (Salvo su conjunto de sprites, lo cual ya se explica en una aclaración anteriormente)
 
 ## Clases de objetos
-Al igual que los personajes, son entidades del juego solo que al ser estáticas carecen de movimiento. (velocidad y = 0, gravedad = 0)
+Al igual que los personajes, son entidades del juego solo que al ser estáticas carecen de movimiento. (Velocidad y = 0, gravedad = 0)
 
 ## Clase Map
 Representa al tablero del juego como conjunto, conteniendo todas las entidades tanto estáticas como dinámicas del juego.
@@ -207,7 +207,7 @@ La aparición de los barriles se controla mediante los sprites de Donkey Kong, p
 # Sprint 4
 Una vez listo todo, es hora de crear el juego en sí.
 
-Esto se consigue añadiendo también la detección de barriles y de Donkey Kong por parte de Mario. Si alguno de los dos le tocan, mario muere. Si en vez de tocar un barril pasa por encima (la detección es igual en el eje x, pero desviada hacia arriba en el eje y), obtiene 100 puntos (se crea un objeto de la clase Points_text).
+Esto se consigue añadiendo también la detección de barriles y de Donkey Kong por parte de Mario. Si alguno de los dos le tocan, Mario muere. Si en vez de tocar un barril pasa por encima (la detección es igual en el eje x, pero desviada hacia arriba en el eje y), obtiene 100 puntos (se crea un objeto de la clase Points_text).
 
 ### Vidas y puntos
 Pese a que es cosa de un sprint anterior, es ahora cuando creamos las 3 vidas y el contador de puntos de Mario. Las dos son atributos de la clase Mario.
@@ -220,6 +220,10 @@ Pese a que, tal y como ya hemos dicho, esto es tarea del primer sprint (según e
 Se programa a Donkey Kong para que cada cierto tiempo rote de sprints formando el movimiento de coger y lanzar un barril. Al pasar al último sprint (el de lanzar el barril) éste es detectado por el juego, que crea un nuevo barril en la posición de las manos de Donkey Kong (siempre y cuando el número de barriles en juego no supere el límite). El intervalo de cambio de sprints de Donkey Kong, controlado por su atributo interno **turn**, establece cuando se crean nuevos barriles.
 
 Pauline se crea también. Al igual que Donkey Kong, tiene un atributo **turn** que controla la duración y el estado de su sprite. Cada cierto tiempo, Pauline cambia repetidamente de sprites en lo que parece un "baile", y justo tras esto pide ayuda (apareciendo a su lado el sprite del texto "Help"). Simultáneamente, Donkey kong golpea su pecho alternando otros dos sprites que tiene explícitamente para realizar ese movimiento.
+
+Si Mario consigue llegar a la última plataforma (donde se encuentra Pauline), los sprites de "baile" de Pauline y los sprites de Donkey Kong golpeándose en el pecho no aparecen, simulando que Mario ha conseguido rescatar a Pauline. A parte, aparecerá un corazón mientras que Mario permanezca en dicha plataforma.
+
+Como no están programados más niveles, Mario podrá seguir jugando y finalizará el juego cuando pierda sus tres vidas.
 
 ## El juego final
 Cada vez que Mario toca un barril o a Donkey, pierde una vida, y Muere.
