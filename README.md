@@ -1,6 +1,6 @@
 # Proyecto Donkey Kong: Documentación
 
-> Trabajo realizado por Alberto Martínez y Ángel Daniel Pinheiro
+> Trabajo realizado por Alberto Martínez y Ángel Daniel Pinheiro (Grupo 81)
 
 ## El objetivo del proyecto es crear el juego de Donkey Kong en Python, usando la librería [**pyxel**](https://pypi.org/project/pyxel/) .
 
@@ -30,7 +30,7 @@ Repetidamente se actualiza y dibuja los diferentes sprites por pantalla a medida
 ## Clase Entity
 En el proyecto denominaremos **Entidad** a todo aquello que posea una posición en pantalla, esté representado por un sprite, y posea propiedades físicas básicas.<br>
 Entre los atributos más destacables encontramos:
-* **Posición en x e y**: Representan las coordenadas de la entidad en la pantalla
+* **Posición en x e y**: Representan las coordenadas de la entidad en la pantalla.
 * **Gravedad**: La aceleración de la caída que va a tener el objeto en cuestión.
 * **Velocidad en y**: La velocidad en el eje y, muy importante junto a la gravedad para simular la caída del objeto (Y, en el caso de Mario, también el salto)
 
@@ -41,6 +41,7 @@ La clase entidad viene con varios métodos getter y setter que permiten controla
 Esto ha sido así dado que consideramos que al tener cada tipo de entidad su propio conjunto de sprites y al no cambiar nunca, es mejor que cada conjunto de sprites sea declarado dentro de la clase del personaje u objeto al que representan. (Añadirlos como atributos del método \_\_init\_\_ de Entity haría el código bastante engorroso)
 
 ## Clase Sprite
+
 En pyxel existe un archivo que contiene en 3 bancos de imágenes distintos todos los sprites que se van a usar en el juego. Este archivo es inicializado al iniciar el juego (clase Game).
 
 Dado todo esto, un sprite individual en realidad es un conjunto de aspectos que especifican qué pequeña parte de los bancos de imágenes se va a recortar para escoger cierto sprite.
@@ -66,7 +67,7 @@ No hay necesidad de aclarar ningun aspecto de éstos (salvo de Mario, más adela
 Al igual que los personajes, son entidades del juego solo que al ser estáticas carecen de movimiento. (velocidad y = 0, gravedad = 0)
 
 ## Clase Map
-Representa al tablero del juego como conjunto, conteniendo todas las entidades tanto estáticas como dinámicas del juego
+Representa al tablero del juego como conjunto, conteniendo todas las entidades tanto estáticas como dinámicas del juego.
 
 ## Clase "points_text"
 Una clase que hemos decidido añadir más adelante durante el desarrollo del juego. Representa a los textos de puntuación que aparecen temporalmente en la pantalla tras saltar Mario sobre un barril.
@@ -89,14 +90,14 @@ Cuando la tecla espacio (pyxel.KEY_SPACE) es pulsada, a Mario se le da una veloc
 > El algoritmo de caída incluye también la detección del fondo inferior de la pantalla, que hace que Mario se detenga cuando llega al suelo.
 
 ### Sprites:
-Mientras Mario se va moviendo, su sprite es cambiante. Para saber qué sprite se usa en cada momento, ha hecho falta establecer una serie de variables que controlen en estado de Mario:
+Mientras Mario esté en movimiento, su sprite es cambiante. Para saber qué sprite se usa en cada momento, ha hecho falta establecer una serie de variables que controlen en estado de Mario:
 
-* **Parámetro jumping**: Su valor es True si mario está saltando, y False si está en el suelo. Permite así cambiar entre el sprite de salto y los de tierra.
+* **Atributo jumping**: Su valor es True si mario está saltando, y False si está en el suelo. Permite así cambiar entre el sprite de salto y los de tierra.
 
 * **Variable turn**: Si está en el suelo y se está moviendo lateralmente, su sprite va realizando ciclos de tres posiciones distintas. He aquí el algoritmo que controla qué turno del ciclo está pasando en cierto instante:
     * Primero, se recoge el valor de pyxel.frame_count, que devuelve el número del frame que está sucediendo en ese mismo instante.
     * Tras esto, a este valor se le hace *módulo 30*, convirtiendolo así en un número que va desde el 00 hasta el 29.
-    * Todo esto de divide entre 10, haciendo así que se convierta en un decimal que oscila entre 0.0 y 2.9
+    * Todo esto de divide entre 10, haciendo así que se convierta en un decimal que oscila entre 0.0 y 2.9.
     * Este decimal se trunca usando la función int() de python, convirtiéndolo en un número que va del 0 al 2.
     * Finalmente se le suma uno, y lo que nos queda es un número que va haciendo ciclos del 1 al 3, cambiando cada 10 fotogramas. Este número es el que más tarde es usado para seleccionar el sprite correspondiente: 'right**1**, right**2**, left**1**, left**2**.. etc.'
 
@@ -105,8 +106,8 @@ Mientras Mario se va moviendo, su sprite es cambiante. Para saber qué sprite se
     > Este algoritmo es usado posteriormente en varias entidades que poseen un ciclo de rotación de sprites. (Como los barriles)
 
 > ## Posición teórica
-> Pese a que mario es para los ojos del jugador un personaje de cierto tamaño, a la hora de establecer sus propiedades físicas su posición queda registrada como un único punto en el mapa (x, y). 
-Pues bien, pese a que no se ve, ese punto está localizado (para facilitar cosas como la deección del suelo) en los PIES de mario. Esto será de gran utilidad en el siguiente apartado, en la interacción con las plataformas.
+> Pese a que Mario es para los ojos del jugador un personaje de cierto tamaño, a la hora de establecer sus propiedades físicas su posición queda registrada como un único punto en el mapa (x, y). 
+Pues bien, pese a que no se ve, ese punto está localizado (para facilitar cosas como la detección del suelo) en los PIES de Mario. Esto será de gran utilidad en el siguiente apartado, en la interacción con las plataformas.
 
 ## Interacción de Mario con el entorno básico (plataformas y escaleras)
 
@@ -117,9 +118,9 @@ Parte de la implementación ya está en realidad hecha: Al poseer una gravedad, 
 
 Pero antes de esto, establecemos un modelo de plataforma con el que podamos trabajar adecuadamente, partiendo de la clase que ya habíamos hecho al principio del proyecto.
 
-Dado que la posición "teórica" de mario está literalmente en sus pies, hemos visto bastante conveniente establecer la posición teórica de la plataforma justo al contrario, en el centro superior de su sprite.
+Dado que la posición "teórica" de Mario está literalmente en sus pies, hemos visto bastante conveniente establecer la posición teórica de la plataforma justo al contrario, en el centro superior de su sprite.
 De este modo, podemos saber que Mario está a la altura de la plataforma cuando la posición de los pies esté justo encima que la posición de la plataforma en el eje Y.
-Del mismo modo pero en el eje x, podemos detectar cuando mario está justo encima de la plataforma. Si la distancia en el eje x de los pies de Mario respecto a la coordenada en x de la plataforma no supera el ancho de ésta, sabemos que mario está sobre ella.
+Del mismo modo pero en el eje x, podemos detectar cuando Mario está justo encima de la plataforma. Si la distancia en el eje x de los pies de Mario respecto a la coordenada en x de la plataforma no supera el ancho de ésta, sabemos que mario está sobre ella.
 
 He aquí una explicación gráfica que seguro que es más aclaratoria:
 
@@ -140,10 +141,10 @@ Se añade dos movimientos más al update de Mario: Moverse arriba (tecla UP) y m
 Pero todo esto con ciertas condiciones...
 Si Mario está solo tocando una escalera podrá solo moverse hacia arriba o hacia abajo. Si además está tocando una plataforma también puede moverse hacia los lados (para poder salir de la escalera). Si está tocando solamente plataformas, nada cambia. 
 
-Es evidente que para controlar este nuevo abanico de condiciones hacía falta crear nuevos parámetros de Mario:
+Es evidente que para controlar este nuevo abanico de condiciones, hacía falta crear nuevos atributos de Mario:
 
-* **Parámetro stair**: Vale True cuando Mario está tocando una escalera y False cuando no.
-* **Parámetro plataforma**: Vale True cuando Mario toca una pataforma y False cuando no.
+* **Atributo stair**: Vale True cuando Mario está tocando una escalera y False cuando no.
+* **Atributo plataforma**: Vale True cuando Mario toca una pataforma y False cuando no.
 
 De este modo, con varias conficiones if-else, somos capaces de cambiar el comportamiento y el movimiento de Mario en base a su interacción con el escenario básico del juego.
 
@@ -194,9 +195,9 @@ El ciclo de sprites usa el famoso algoritmo que usa también Mario a la hora de 
 
 Tras esto, solo hace falta hacer que varíe de dirección. Esto lo hace cada vez que toca el borde lateral de la pantalla (se cae por el lado de la plataforma) o cada vez que toca una plataforma tras caer por una escalera. Siempre que baja un nivel cambia de sentido de derecha a izquierda o viceversa.
 
-* **Parámetro heading_right**: Devuelve un booleano dependiendo de si el barril tiene que avanzar hacia la derecha o no (a la izquierda)
+* **Atributo heading_right**: Devuelve un booleano dependiendo de si el barril tiene que avanzar hacia la derecha o no. (A la izquierda)
 
-* **Parámetro cayendo**: Si está cayendo por una escalera, este parámetro vale True. (sirve para cambiar tanto de sprite como de dirección)
+* **Atributo cayendo**: Si está cayendo por una escalera, este parámetro vale True. (Sirve para cambiar tanto de sprite como de dirección)
 
 Una vez el barril como individual actúa de manera correcta, es hora de añadir "barriles" como colectivo.
 Al igual que la lista de plataformas y las listas de escaleras, los barriles se añaden a una lista de barriles definida en el mapa. De este modo, actualizar todos los barriles se convierte en básicamente iterar cada ítem de la lista como conjunto.
@@ -209,39 +210,37 @@ Una vez listo todo, es hora de crear el juego en sí.
 Esto se consigue añadiendo también la detección de barriles y de Donkey Kong por parte de Mario. Si alguno de los dos le tocan, mario muere. Si en vez de tocar un barril pasa por encima (la detección es igual en el eje x, pero desviada hacia arriba en el eje y), obtiene 100 puntos (se crea un objeto de la clase Points_text).
 
 ### Vidas y puntos
-Pese a que es cosa de un sprint anterior, es ahora cuando creamos las 3 vidas y el contador de puntos de Mario. Las dos son parámetros de la clase Mario.
+Pese a que es cosa de un sprint anterior, es ahora cuando creamos las 3 vidas y el contador de puntos de Mario. Las dos son atributos de la clase Mario.
 
-Los puntos son mostrados continuamente en la parte superior de la pantalla, y debajo de ellos, se dibujan tantos "mini marios" como vidas le queden a Mario (con un bucle for, separados entre sí)
+Los puntos son mostrados continuamente en la parte superior de la pantalla, y debajo de ellos, se dibujan tantos "mini marios" como vidas le queden a Mario (con un bucle for, separados entre sí).
 
 ### Últimos elementos del mapa
-Pese a que, tal y como ya hemos dicho, esto es tarea del primer sprint (según el plan proporcionado por el profesor), hemos acabado añadiendo a pauline y a Donkey Kong en el último sprint (ya que al fin y al cabo no tienen físicas, solo cambian sus sprints.)
+Pese a que, tal y como ya hemos dicho, esto es tarea del primer sprint (según el plan proporcionado por el profesor), hemos acabado añadiendo a Pauline y a Donkey Kong en el último sprint (ya que al fin y al cabo no tienen físicas, solo cambian sus sprints).
 
-Se programa a Donkey Kong para que cada cierto tiempo rote de sprints formando el movimiento de coger y lanzar un barril. Al pasar al último sprint (el de lanzar el barril) éste es detectado por el juego, que crea un nuevo barril en la posición de las manos de Donkey Kong (siempre y cuando el número de barriles en juego no supere el límite). El intervalo de cambio de sprints de Donkey Kong, controlado por su parámetro interno **turn**, establece cuando se crean nuevos barriles.
+Se programa a Donkey Kong para que cada cierto tiempo rote de sprints formando el movimiento de coger y lanzar un barril. Al pasar al último sprint (el de lanzar el barril) éste es detectado por el juego, que crea un nuevo barril en la posición de las manos de Donkey Kong (siempre y cuando el número de barriles en juego no supere el límite). El intervalo de cambio de sprints de Donkey Kong, controlado por su atributo interno **turn**, establece cuando se crean nuevos barriles.
 
-Pauline se crea también. Al igual que Donkey Kong, tiene un parámetro **turn** que controla la duración y el estado de su sprite. Cada cierto tiempo, Pauline cambia repetidamente de sprites en lo que parece un "baile", y justo tras esto pide ayuda (apareciendo a su lado el sprite del texto "Help"). Simultáneamente, donkey kong golpea su pecho alternando otros dos sprites que tiene explícitamente para realizar ese movimiento.
+Pauline se crea también. Al igual que Donkey Kong, tiene un atributo **turn** que controla la duración y el estado de su sprite. Cada cierto tiempo, Pauline cambia repetidamente de sprites en lo que parece un "baile", y justo tras esto pide ayuda (apareciendo a su lado el sprite del texto "Help"). Simultáneamente, Donkey kong golpea su pecho alternando otros dos sprites que tiene explícitamente para realizar ese movimiento.
 
 ## El juego final
 Cada vez que Mario toca un barril o a Donkey, pierde una vida, y Muere.
 
 ### Muerte de Mario
-* **Parámetro died**: Cuando Mario muere se vuelve True.
+* **Atributo "Died"**: Cuando Mario muere se vuelve True.
 
-Al ser el parámetro died de Mario igual a True, el juego pasa a transcurrir de manera distinta durante un intervalo de tiempo.
+Al ser el atributo "Died" de Mario igual a True, el juego pasa a transcurrir de manera distinta durante un intervalo de tiempo.
 En vez de actualizar todas las entidades dinámicas tal y como lo hace normalmente, todas las entidades como barriles y textos de puntuación son borrados del mapa.
-Ni Donkey ni Pauline se actualizan.
-<br>Mario, mientras tanto, pasa a un ciclo de sprites de muerte, en el que da un par de vueltas y cae al suelo rendido. Tras esto, acaba la animación y el periodo de muerte, voiviendo a ser mario.died igual a False y pudiendo ocurrir dos cosas:
+Ni Donkey Kong ni Pauline se actualizan.
+<br>Mario, mientras tanto, pasa a un ciclo de sprites de muerte, en el que da un par de vueltas y cae al suelo rendido. Tras esto, acaba la animación y el periodo de muerte, volviendo a ser mario.died igual a False y pudiendo ocurrir dos cosas:
 
 Si quedan más vidas (al morir se le resta uno al parámetro de vidas de Mario), Mario vuelve a su posición inicial y todo vuelve a la normalidad, transcurriendo el juego tal y como siempre.
 
-Si, en cambio, ya no hay mas vidas, la pantalla pasa a ser negro, mostrando el texto "Game over" junto a los puntos conseguidos. Fin del juego.
+Si, en cambio, ya no hay más vidas, la pantalla pasa a ser negro, mostrando el texto "Game over" junto a los puntos conseguidos. Fin del juego.
 
 # Conclusiones finales
 El enfoque del proyecto ha sido bastante interesante. Decidimos comenzar probando las físicas e interacciones de manera individual (Mario con *una* plataforma, mario con *una* escalera) y más tarde juntando todo en un mapa, lo cual aparte de un par de errores ha salido bastante bien.
 
 Errores, como en cualquier tipo de software, siempre hay. Aún existe algún que otro bug de físicas que seguimos intendando solucionar sin muchas esperanzas aparte encontrar por casualidad el problema al tratar de programar algo distinto.
 
-Admitimos que el sistema de físicas y detección puede haber sido demasiado complejo. Y complejo no siempre significa mejor. Seguro que muchos de los errores que han aparecido durante el desarrollo del proyecto no habrían surgido si nos humbiésemos centrado en un movimiento más simple y menos "posiciones teóricas" y "gravedad"... Pero también hay que admitir que lo que resulta siguiendo este camino es un movimiento bastante fluido y atractivo en el salto y los choques con plataformas.
+Admitimos que el sistema de físicas y detección puede haber sido demasiado complejo. Y complejo no siempre significa mejor. Seguro que muchos de los errores que han aparecido durante el desarrollo del proyecto no habrían surgido si nos hubiésemos centrado en un movimiento más simple y menos "posiciones teóricas" y "gravedad"... Pero también hay que admitir que lo que resulta siguiendo este camino es un movimiento bastante fluido y atractivo en el salto y los choques con plataformas.
 
-Por otra parte, la documentación del proyecto no tiene nada en especial aparte de intentar explicar lo mejor posible las entrañas del código que, tras la implementación de las últimas características del juego, no está lo mejor optimizado posible.
-
-Pero al fin y al cabo, lo hecho hecho está y este es el resultado.
+Por otra parte, la documentación del proyecto no tiene nada en especial a parte de intentar explicar lo mejor posible las entrañas del código que, tras la implementación de las últimas características del juego, no está lo mejor optimizado posible.
