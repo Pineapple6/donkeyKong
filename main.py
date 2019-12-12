@@ -140,10 +140,7 @@ class Entity:
 		self.sprite_name = sprite # Actualiza la variable sprite_name
 		self.sprite = self.sprites[sprite] # Selecciona el sprite del diccionario y lo actualiza
 
-	# TODO: Creo que estos métodos de a continuación son un poco innecesarios, pudiendo
-	# hacer Entity.set(Entity.get() + variación)
-	# Si no se usa demasiado yo creo que vendría bien quitarlos y cambiar sus llamadas
-	# en el código. (Total, para un par de veces que se usan)
+	# "Changers" varían ciertos atributos una cantidad (val)
 	def changeX(self, val):
 		'''
 		Varía la posición en x de la entidad la cantidad val
@@ -522,7 +519,6 @@ class Map():
 		# mientras tanto, cuando está cerca de una posición en la que hay que dibujar una escalera la
 		# dibuja, ya de paso.
 		# curr_plat --> posición de la última plataforma que se ha creado.
-		# TODO: TIENE QUE HABER UNA FORMA DE HACER ESTO SIN TENER QUE HACER ESTA MONSTRUOSIDAD ES FEISIMO ESTO
 		curr_plat = self.crea_plataforma(7, HEIGHT-8, 7)
 		self.escaleras.append(Escalera(curr_plat[0]-15, curr_plat[1]+1))
 		self.escaleras_no_interactua.append(Escalera(curr_plat[0]-15, curr_plat[1]-34))
